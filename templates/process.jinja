@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Shortlisting - RS_PROJECT</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='index.css') }}">
+    <style>
+        /* Ensure the entire page is scrollable */
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .container {
+            flex: 1;
+            padding: 20px;
+            padding-bottom: 40px;
+        }
+        /* Override footer to make it part of the page flow */
+        footer {
+            padding: 0.5em;
+            position: static;
+            width: 100%;
+            background-color: #34495e;
+            color: white;
+            text-align: center;
+        }
+        /* Ensure table wrapper allows scrolling and headers are sticky */
+        .table-wrapper {
+            max-height: 500px;
+            overflow-y: auto;
+            margin-bottom: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .results-table th, .results-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .results-table th {
+            position: sticky;
+            top: 0;
+            z-index: 1;
+            background-color: #34495e;
+            color: white;
+            font-weight: 600;
+        }
+        .results-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        .table-controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+        #rank-search {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        #download-csv {
+            padding: 8px 15px;
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        #download-csv:hover {
+            background-color: #27ae60;
+        }
+        .job-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3498db;
+        }
+        .job-info h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .skill-badge {
+            display: inline-block;
+            background-color: #e8f4fc;
+            color: #2c3e50;
+            padding: 3px 8px;
+            border-radius: 12px;
+            margin: 2px;
+            font-size: 0.85em;
+        }
+        .skill-count {
+            font-weight: bold;
+            color: #3498db;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="{{ url_for('index') }}" style="display: flex; align-items: center; gap: 5px;">Home 🏠</a></li>
+        </ul>
+    </nav>
+    <header>
+        <h1>Resume Shortlisting Process</h1>
+    </header>
+    <div class="container">
+        <div class="section" id="process">
+            <h2>Enter Job ID</h2>
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    {% for category, message in messages %}
+                        <div class="{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            {% endwith %}
+            <form method="POST" action="{{ url_for('process') }}" id="job-id-form">
+                <div class="form-group">
+                    <label>Job ID:</label>
+                    <input type="text" name="job_id" placeholder="e.g., VA-12345" required>
+                    <button type="submit">Process Resumes</button>
+                </div>
+            </form>
+            <div id="loading-indicator" style="display: none;">
+                <div class="loader"></div>
+                <p id="loading-message">Processing...</p>
+            </div>
+
+            {% if job_role is not none and job_role != "N/A" %}
+                <div class="job-info">
+                    <h3>Job Role:</h3>
+                    <p>{{ job_role }}</p>
+                </div>
+            {% endif %}
+
+            {% if subject_skills is not none and subject_skills|length > 0 %}
+                <div class="job-info">
+                    <h3>Subject Skills:</h3>
+                    <p>
+                        {% for skill in subject_skills %}
+                            <span class="skill-badge">{{ skill }}</span>
+                        {% endfor %}
+                    </p>
+                </div>
+            {% endif %}
+            
+            {% if table_data is not none and columns is not none and table_data|length > 0 and columns|length > 0 %}
+                <h3>Candidate Details (Sorted by Rank):</h3>
+                <div class="table-controls">
+                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()">
+                    <button id="download-csv" onclick="downloadCSV()">Download as CSV 📥</button>
+                </div>
+                <div class="table-wrapper">
+                    <table class="results-table" id="results-table">
+                        <thead>
+                            <tr>
+                                {% for col in columns %}
+                                    <th>{{ col }}</th>
+                                {% endfor %}
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            {% for row in table_data %}
+                                <tr>
+                                    {% for col in columns %}
+                                        {% if col == "Matching Skills" and row[col] is not none and row[col] != "N/A" %}
+                                            <td>
+                                                {% if row[col] is string %}
+                                                    {{ row[col] }}
+                                                {% else %}
+                                                    {% for skill in row[col] %}
+                                                        <span class="skill-badge">{{ skill }}</span>
+                                                    {% endfor %}
+                                                {% endif %}
+                                            </td>
+                                        {% elif col == "Matching Skills Count" %}
+                                            <td class="skill-count">{{ row[col] }}</td>
+                                        {% else %}
+                                            <td>{{ row[col] }}</td>
+                                        {% endif %}
+                                    {% endfor %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p>No candidate details to display.</p>
+            {% endif %}
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 RS_PROJECT. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Loading indicator messages
+        const messages = [
+            "Processing Job ID...",
+            "Clearing previous resumes...",
+            "Accessing Gmail...",
+            "Filtering emails by Job ID...",
+            "Downloading resumes from attachments...",
+            "Converting resumes (.pdf & .docx) into text (.txt)...",
+            "Extracting the details or columns..."
+        ];
+
+        // Handle form submission to show loading indicator
+        document.getElementById('job-id-form').addEventListener('submit', function() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const loadingMessage = document.getElementById('loading-message');
+            loadingIndicator.style.display = 'block';
+
+            // Cycle through messages
+            let messageIndex = 0;
+            loadingMessage.textContent = messages[messageIndex];
+            const interval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % messages.length;
+                loadingMessage.textContent = messages[messageIndex];
+            }, 1500); // Change message every 1.5 seconds
+
+            // Store the interval in sessionStorage to clean it up later
+            sessionStorage.setItem('loadingInterval', interval);
+        });
+
+        // On page load, hide the loading indicator if results are present
+        window.addEventListener('load', function() {
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const interval = sessionStorage.getItem('loadingInterval');
+            if (interval) {
+                clearInterval(interval);
+                sessionStorage.removeItem('loadingInterval');
+            }
+            {% if table_data is not none and table_data|length > 0 or subject_skills is not none and subject_skills|length > 0 %}
+                loadingIndicator.style.display = 'none';
+            {% endif %}
+        });
+
+        // Only define these functions if table_data exists and is not empty
+        {% if table_data is not none and table_data|length > 0 %}
+            const columns = {{ columns|tojson | safe }};
+            const tableData = {{ table_data|tojson | safe }};
+            const subjectSkills = {{ subject_skills|tojson | safe }};
+            const jobRole = {{ job_role|tojson | safe }};
+
+            // Store the original table rows for downloading the entire table
+            const originalRows = tableData.map(row => {
+                return columns.map(col => {
+                    let value = row[col];
+                    // Handle array values (like Matching Skills)
+                    if (Array.isArray(value)) {
+                        value = value.join('; ');
+                    }
+                    // Escape commas and quotes in the value
+                    if (typeof value === 'string') {
+                        value = value.replace(/"/g, '""');
+                        if (value.includes(',') || value.includes(';')) {
+                            value = `"${value}"`;
+                        }
+                    }
+                    return value;
+                });
+            });
+
+            // Filter table by rank
+            function filterTableByRank() {
+                const rankInput = document.getElementById('rank-search').value.trim();
+                const tableBody = document.getElementById('table-body');
+                const rows = tableBody.getElementsByTagName('tr');
+
+                for (let i = 0; i < rows.length; i++) {
+                    const rankCell = rows[i].getElementsByTagName('td')[0]; // Rank is the first column
+                    if (rankCell) {
+                        const rankValue = rankCell.textContent || rankCell.innerText;
+                        if (rankInput === '' || rankValue === rankInput) {
+                            rows[i].style.display = '';
+                        } else {
+                            rows[i].style.display = 'none';
+                        }
+                    }
+                }
+            }
+
+            // Download the entire table as CSV, including job role and subject skills
+            function downloadCSV() {
+                let csvContent = '';
+
+                // Add job role section
+                csvContent += 'Job Role\n';
+                csvContent += (jobRole && jobRole !== "N/A" ? jobRole : 'None') + '\n\n';
+
+                // Add subject skills section if available
+                if (subjectSkills && subjectSkills.length > 0) {
+                    csvContent += 'Subject Skills\n';
+                    csvContent += subjectSkills.join(', ') + '\n\n';
+                } else {
+                    csvContent += 'Subject Skills\n';
+                    csvContent += 'None\n\n';
+                }
+
+                // Add table data section
+                csvContent += 'Candidate Details\n';
+                csvContent += columns.join(',') + '\n';
+                originalRows.forEach(row => {
+                    csvContent += row.join(',') + '\n';
+                });
+
+                // Create a blob and trigger download
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', 'candidate_details_with_skills.csv');
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            }
+        {% endif %}
+    </script>
+</body>
+</html>

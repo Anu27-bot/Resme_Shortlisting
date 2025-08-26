@@ -1,0 +1,144 @@
+/* Modal Styles */
+.modal {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+.modal-content {
+    width: 500px;
+    height: 500px;
+    background: transparent;
+    border: 2px solid #FF597B;
+    border-radius: 20px;
+    box-shadow: 0 0 20px rgba(255, 89, 123, 0.5);
+    display: flex;
+    overflow: hidden;
+    position: relative;
+}
+.modal-content .close-button {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    font-size: 20px;
+    color: #FFFFFF;
+    cursor: pointer;
+}
+/* Sign Up Modal */
+#signup-modal .modal-content {
+    background: linear-gradient(225deg, #FF597B 50%, #1F2525 50%);
+}
+#signup-modal .left-section {
+    flex: 1;
+    background: transparent;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    color: #FFFFFF;
+}
+#signup-modal .left-section h1 {
+    font-size: 36px;
+    margin: 0;
+    line-height: 1.2;
+}
+#signup-modal .left-section p {
+    font-size: 14px;
+    margin-top: 15px;
+    opacity: 0.7;
+}
+#signup-modal .right-section {
+    flex: 1;
+    background: #1F2525;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+#signup-modal .right-section h2 {
+    color: #FFFFFF;
+    font-size: 24px;
+    margin-bottom: 20px;
+}
+/* Common Modal Styles */
+.form-group {
+    margin-bottom: 15px;
+}
+.form-group label {
+    display: flex;
+    align-items: center;
+    color: #FFFFFF;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+.form-group label .icon {
+    margin-right: 8px;
+    color: #FFD700;
+    font-size: 16px;
+}
+.form-group label .underline {
+    flex-grow: 1;
+    height: 2px;
+    background-color: #FFD700;
+    margin-left: 8px;
+}
+.form-group input {
+    width: 100%;
+    padding: 8px;
+    background: transparent;
+    border: 1px solid #FFFFFF;
+    border-radius: 4px;
+    color: #FFFFFF;
+    font-size: 14px;
+    outline: none;
+}
+.form-group input::placeholder {
+    color: #FFFFFF;
+    opacity: 0.7;
+}
+.form-group button {
+    width: 100%;
+    padding: 10px;
+    background: linear-gradient(90deg, #FF597B, #F76A8C);
+    border: none;
+    border-radius: 50px;
+    color: #FFFFFF;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 15px;
+}
+.form-group button:hover {
+    background: linear-gradient(90deg, #F76A8C, #FF597B);
+}
+.link {
+    text-align: center;
+    margin-top: 15px;
+    color: #FFFFFF;
+    font-size: 12px;
+}
+.link a {
+    color: #FF597B;
+    text-decoration: none;
+    cursor: pointer;
+}
+.link a:hover {
+    text-decoration: underline;
+}
+.success {
+    color: #00FF00;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+}
+.error {
+    color: #FF0000;
+    font-size: 12px;
+    text-align: center;
+    margin-top: 8px;
+}

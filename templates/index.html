@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Resume Shortlisting - RS_PROJECT</title>
+    <style>
+        /* Reset and base styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Navigation */
+        nav {
+            background-color: #2c3e50;
+            padding: 1rem;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        nav ul li a:hover {
+            background-color: #34495e;
+        }
+        
+        /* Header */
+        header {
+            background-color: #3498db;
+            color: white;
+            text-align: center;
+            padding: 2rem 1rem;
+        }
+        
+        header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Main container */
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Form styles */
+        .form-group {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 2rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+        
+        .form-group input[type="text"] {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group button {
+            background-color: #2ecc71;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        .form-group button:hover {
+            background-color: #27ae60;
+        }
+        
+        /* Job info sections */
+        .job-info {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 1.5rem;
+            border-left: 4px solid #3498db;
+        }
+        
+        .job-info h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Table controls */
+        .table-controls {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        #rank-search {
+            padding: 0.5rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 200px;
+        }
+        
+        #download-csv {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        
+        #download-csv:hover {
+            background-color: #2980b9;
+        }
+        
+        .results-count {
+            margin-left: auto;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        
+        /* Table styles */
+        .table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            margin-bottom: 2rem;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            background: white;
+        }
+        
+        .results-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .results-table th, 
+        .results-table td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .results-table th {
+            background-color: #34495e;
+            color: white;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            font-weight: 600;
+        }
+        
+        .results-table tr:hover {
+            background-color: #f5f5f5;
+        }
+        
+        /* Skill badges */
+        .skill-badge {
+            display: inline-block;
+            background-color: #e8f4fc;
+            color: #2c3e50;
+            padding: 0.25rem 0.5rem;
+            border-radius: 12px;
+            margin: 0.1rem;
+            font-size: 0.85em;
+        }
+        
+        .skill-count {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        /* Footer */
+        footer {
+            background-color: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 1rem;
+            margin-top: auto;
+        }
+        
+        /* Loading indicator */
+        #loading-indicator {
+            text-align: center;
+            margin: 2rem 0;
+            display: none;
+        }
+        
+        .loader {
+            border: 5px solid #f3f3f3;
+            border-top: 5px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 1rem;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        /* Flash messages */
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #c62828;
+        }
+        
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            border-left: 4px solid #2e7d32;
+        }
+        
+        /* Responsive design */
+        @media (max-width: 768px) {
+            .container {
+                padding: 1rem;
+            }
+            
+            .table-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            #rank-search {
+                width: 100%;
+            }
+            
+            .results-count {
+                margin-left: 0;
+                margin-top: 1rem;
+            }
+            
+            .table-wrapper {
+                overflow-x: auto;
+            }
+            
+            .results-table {
+                min-width: 800px;
+            }
+        }
+        
+        /* Recent jobs section */
+        .recent-jobs {
+            margin-top: 1rem;
+        }
+        
+        .recent-jobs h4 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .job-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .job-tag {
+            background-color: #e8f4fc;
+            color: #3498db;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+        }
+        
+        .job-tag:hover {
+            background-color: #d1ebff;
+        }
+        
+        /* Highlight top candidates */
+        .top-candidate {
+            background-color: #f0f9eb;
+        }
+        
+        .top-candidate:hover {
+            background-color: #e1f5d4;
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <ul>
+            <li><a href="#" style="display: flex; align-items: center; gap: 5px;">Home 🏠</a></li>
+        </ul>
+    </nav>
+    <header>
+        <h1>Resume Shortlisting Process</h1>
+    </header>
+    <div class="container">
+        <div class="section" id="process">
+            <h2>Enter Job ID</h2>
+            <div class="form-group">
+                <label>Job ID:</label>
+                <input type="text" id="job-id-input" placeholder="e.g., NC-774172, VA-12345, TX-98765" required>
+                <button type="button" onclick="processJobId()">Process Resumes</button>
+                
+                <div class="recent-jobs">
+                    <h4>Recent Job IDs:</h4>
+                    <div class="job-tags">
+                        <span class="job-tag" onclick="setJobId('NC-774172')">NC-774172</span>
+                        <span class="job-tag" onclick="setJobId('VA-12345')">VA-12345</span>
+                        <span class="job-tag" onclick="setJobId('TX-98765')">TX-98765</span>
+                        <span class="job-tag" onclick="setJobId('CA-54321')">CA-54321</span>
+                    </div>
+                </div>
+            </div>
+            <div id="loading-indicator">
+                <div class="loader"></div>
+                <p id="loading-message">Processing...</p>
+            </div>
+
+            <div id="job-role-container" class="job-info" style="display: none;">
+                <h3>Job Role:</h3>
+                <p id="job-role-text"></p>
+            </div>
+
+            <div id="subject-skills-container" class="job-info" style="display: none;">
+                <h3>Subject Skills:</h3>
+                <p id="subject-skills-text"></p>
+            </div>
+            
+            <div id="results-container" style="display: none;">
+                <div class="table-controls">
+                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()">
+                    <button id="download-csv" onclick="downloadCSV()">Download as CSV 📥</button>
+                    <div class="results-count" id="results-count"></div>
+                </div>
+                <div class="table-wrapper">
+                    <table class="results-table" id="results-table">
+                        <thead>
+                            <tr>
+                                <th>Rank</th>
+                                <th>Name</th>
+                                <th>Current Location</th>
+                                <th>Experience</th>
+                                <th>Certification Count</th>
+                                <th>Government Work</th>
+                                <th>Matching Skills</th>
+                                <th>Matching Skills Count</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            <!-- Table rows will be populated by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div id="no-results" class="job-info" style="display: none;">
+                <h3>Processing Status</h3>
+                <p>No results yet. Process a job to see candidate rankings.</p>
+            </div>
+        </div>
+    </div>
+    <footer>
+        <p>© 2025 RS_PROJECT. All rights reserved.</p>
+    </footer>
+
+    <script>
+        // Sample data for different job IDs with all profiles
+        const jobData = {
+            "NC-774172": {
+                jobRole: "Infrastructure/Network Architect (CCNP/CCIE/15+)",
+                subjectSkills: [
+                    "Infrastructure/Network Architect (CCNP/CCIE/15+)",
+                    "PM",
+                    "LANs",
+                    "VLAN",
+                    "WLANs",
+                    "SANs",
+                    "RTLS",
+                    "VPN",
+                    "TCP/IP",
+                    "SIP",
+                    "WPA2",
+                    "UCS and COTS experience"
+                ],
+                candidates: [
+                    {
+                        rank: 1,
+                        name: "Michael Adam Pugaczewski",
+                        location: "Fuquay Varina, NC",
+                        experience: "15.50 years",
+                        certCount: 6,
+                        govWork: "Yes: Department of Defense, Ground Intelligence Support Activity, Army National Guard",
+                        matchingSkills: ["TCP/IP (2)", "VLAN (2)", "VPN (2)", "LAN (2)", "WAN (1)", "Cisco (1)"],
+                        matchingSkillsCount: 10
+                    },
+                    {
+                        rank: 2,
+                        name: "John Doe",
+                        location: "RTP, NC",
+                        experience: "15.50 years",
+                        certCount: 2,
+                        govWork: "Yes: Town of Cary, GSK",
+                        matchingSkills: ["VLAN (2)", "Cisco (1)"],
+                        matchingSkillsCount: 3
+                    },
+                    {
+                        rank: 3,
+                        name: "Nate Pauze",
+                        location: "Raleigh, NC",
+                        experience: "9.42 years",
+                        certCount: 3,
+                        govWork: "Yes: National Institute of Environmental Health Sciences, Commonwealth of Massachusetts Department of Central Healthcare Information and Analysis (CHIA)",
+                        matchingSkills: ["Cisco (1)", "CCIE (2)", "CCNP (2)"],
+                        matchingSkillsCount: 5
+                    },
+                    {
+                        rank: 4,
+                        name: "W. Ted Meng",
+                        location: "Raleigh, NC, USA",
+                        experience: "15.42 years",
+                        certCount: 11,
+                        govWork: "Yes: Social Security Administration (SSA)",
+                        matchingSkills: ["Cisco (1)", "CCIE (2)", "CCNP (2)"],
+                        matchingSkillsCount: 5
+                    },
+                    {
+                        rank: 5,
+                        name: "Thiago Henriques",
+                        location: "Not specified",
+                        experience: "22.00 years",
+                        certCount: 11,
+                        govWork: "No",
+                        matchingSkills: ["VPN (2)"],
+                        matchingSkillsCount: 2
+                    },
+                    {
+                        rank: 6,
+                        name: "Mathias Mulumba",
+                        location: "Not specified",
+                        experience: "14.50 years",
+                        certCount: 12,
+                        govWork: "No",
+                        matchingSkills: ["Virtualization (1)"],
+                        matchingSkillsCount: 1
+                    }
+                ]
+            },
+            "VA-12345": {
+                jobRole: "Software Engineer (Java/Python)",
+                subjectSkills: [
+                    "Java",
+                    "Python",
+                    "Spring Boot",
+                    "Django",
+                    "REST APIs",
+                    "Microservices",
+                    "AWS",
+                    "Docker",
+                    "Kubernetes"
+                ],
+                candidates: [
+                    {
+                        rank: 1,
+                        name: "Sarah Johnson",
+                        location: "Richmond, VA",
+                        experience: "8.20 years",
+                        certCount: 4,
+                        govWork: "Yes: Department of Veterans Affairs",
+                        matchingSkills: ["Java (3)", "Spring Boot (2)", "AWS (2)", "Docker (1)"],
+                        matchingSkillsCount: 8
+                    },
+                    {
+                        rank: 2,
+                        name: "David Chen",
+                        location: "Arlington, VA",
+                        experience: "5.80 years",
+                        certCount: 3,
+                        govWork: "No",
+                        matchingSkills: ["Python (2)", "Django (1)", "REST APIs (1)"],
+                        matchingSkillsCount: 4
+                    },
+                    {
+                        rank: 3,
+                        name: "Robert Smith",
+                        location: "Alexandria, VA",
+                        experience: "7.30 years",
+                        certCount: 5,
+                        govWork: "Yes: Federal Reserve Board",
+                        matchingSkills: ["Java (2)", "Microservices (2)", "Kubernetes (1)"],
+                        matchingSkillsCount: 5
+                    },
+                    {
+                        rank: 4,
+                        name: "Jennifer Wilson",
+                        location: "Fairfax, VA",
+                        experience: "6.10 years",
+                        certCount: 3,
+                        govWork: "No",
+                        matchingSkills: ["Python (2)", "AWS (1)", "Docker (1)"],
+                        matchingSkillsCount: 4
+                    }
+                ]
+            },
+            "TX-98765": {
+                jobRole: "Data Scientist (Machine Learning)",
+                subjectSkills: [
+                    "Python",
+                    "R",
+                    "Machine Learning",
+                    "TensorFlow",
+                    "PyTorch",
+                    "SQL",
+                    "Data Visualization",
+                    "Statistical Analysis"
+                ],
+                candidates: [
+                    {
+                        rank: 1,
+                        name: "Maria Rodriguez",
+                        location: "Austin, TX",
+                        experience: "6.50 years",
+                        certCount: 5,
+                        govWork: "Yes: Texas Department of Transportation",
+                        matchingSkills: ["Python (3)", "Machine Learning (2)", "TensorFlow (2)", "SQL (1)"],
+                        matchingSkillsCount: 8
+                    },
+                    {
+                        rank: 2,
+                        name: "James Wilson",
+                        location: "Houston, TX",
+                        experience: "4.20 years",
+                        certCount: 2,
+                        govWork: "No",
+                        matchingSkills: ["R (2)", "Statistical Analysis (1)", "Data Visualization (1)"],
+                        matchingSkillsCount: 4
+                    },
+                    {
+                        rank: 3,
+                        name: "Thomas Brown",
+                        location: "Dallas, TX",
+                        experience: "5.80 years",
+                        certCount: 4,
+                        govWork: "Yes: City of Dallas IT Department",
+                        matchingSkills: ["Python (2)", "Machine Learning (1)", "PyTorch (1)", "SQL (1)"],
+                        matchingSkillsCount: 5
+                    },
+                    {
+                        rank: 4,
+                        name: "Lisa Garcia",
+                        location: "San Antonio, TX",
+                        experience: "7.10 years",
+                        certCount: 6,
+                        govWork: "No",
+                        matchingSkills: ["R (2)", "Data Visualization (2)", "Statistical Analysis (1)"],
+                        matchingSkillsCount: 5
+                    }
+                ]
+            },
+            "CA-54321": {
+                jobRole: "Cloud DevOps Engineer",
+                subjectSkills: [
+                    "AWS",
+                    "Azure",
+                    "Terraform",
+                    "Kubernetes",
+                    "Docker",
+                    "CI/CD",
+                    "Jenkins",
+                    "Linux"
+                ],
+                candidates: [
+                    {
+                        rank: 1,
+                        name: "Jennifer Lee",
+                        location: "San Francisco, CA",
+                        experience: "7.80 years",
+                        certCount: 7,
+                        govWork: "Yes: State of California IT Department",
+                        matchingSkills: ["AWS (3)", "Terraform (2)", "Kubernetes (2)", "Docker (2)"],
+                        matchingSkillsCount: 9
+                    },
+                    {
+                        rank: 2,
+                        name: "Robert Kim",
+                        location: "Los Angeles, CA",
+                        experience: "5.20 years",
+                        certCount: 4,
+                        govWork: "No",
+                        matchingSkills: ["Azure (2)", "CI/CD (1)", "Jenkins (1)"],
+                        matchingSkillsCount: 4
+                    },
+                    {
+                        rank: 3,
+                        name: "Michael Taylor",
+                        location: "San Diego, CA",
+                        experience: "6.50 years",
+                        certCount: 5,
+                        govWork: "Yes: Navy Information Operations Command",
+                        matchingSkills: ["AWS (2)", "Kubernetes (2)", "Linux (1)", "Docker (1)"],
+                        matchingSkillsCount: 6
+                    },
+                    {
+                        rank: 4,
+                        name: "Susan Martinez",
+                        location: "San Jose, CA",
+                        experience: "8.20 years",
+                        certCount: 8,
+                        govWork: "No",
+                        matchingSkills: ["Azure (3)", "Terraform (2)", "CI/CD (2)"],
+                        matchingSkillsCount: 7
+                    }
+                ]
+            }
+        };
+
+        // Loading indicator messages
+        const messages = [
+            "Processing Job ID...",
+            "Clearing previous resumes...",
+            "Accessing Gmail...",
+            "Filtering emails by Job ID...",
+            "Downloading resumes from attachments...",
+            "Converting resumes (.pdf & .docx) into text (.txt)...",
+            "Extracting the details or columns..."
+        ];
+
+        // Hide loading indicator initially
+        document.getElementById('loading-indicator').style.display = 'none';
+
+        // Set job ID from recent jobs
+        function setJobId(jobId) {
+            document.getElementById('job-id-input').value = jobId;
+            processJobId();
+        }
+
+        // Process the entered Job ID
+        function processJobId() {
+            const jobId = document.getElementById('job-id-input').value.trim();
+            
+            if (!jobId) {
+                alert('Please enter a Job ID');
+                return;
+            }
+            
+            const loadingIndicator = document.getElementById('loading-indicator');
+            const loadingMessage = document.getElementById('loading-message');
+            loadingIndicator.style.display = 'block';
+
+            // Cycle through messages
+            let messageIndex = 0;
+            loadingMessage.textContent = messages[messageIndex];
+            const interval = setInterval(() => {
+                messageIndex = (messageIndex + 1) % messages.length;
+                loadingMessage.textContent = messages[messageIndex];
+            }, 1500); // Change message every 1.5 seconds
+
+            // Simulate processing delay
+            setTimeout(() => {
+                clearInterval(interval);
+                loadingIndicator.style.display = 'none';
+                
+                // Check if we have data for this job ID
+                if (jobData[jobId]) {
+                    displayJobData(jobId, jobData[jobId]);
+                } else {
+                    // Show error for unknown job ID
+                    document.getElementById('job-role-container').style.display = 'none';
+                    document.getElementById('subject-skills-container').style.display = 'none';
+                    document.getElementById('results-container').style.display = 'none';
+                    document.getElementById('no-results').style.display = 'block';
+                    
+                    // Show error message
+                    const errorDiv = document.createElement('div');
+                    errorDiv.className = 'error';
+                    errorDiv.textContent = `No data found for Job ID: ${jobId}. Try one of the sample Job IDs.`;
+                    
+                    // Remove any existing error messages
+                    const existingErrors = document.querySelectorAll('.error');
+                    existingErrors.forEach(error => error.remove());
+                    
+                    document.querySelector('.form-group').appendChild(errorDiv);
+                }
+            }, 3000);
+        }
+
+        // Display job data
+        function displayJobData(jobId, data) {
+            // Hide no results message
+            document.getElementById('no-results').style.display = 'none';
+            
+            // Show job role
+            document.getElementById('job-role-text').textContent = data.jobRole;
+            document.getElementById('job-role-container').style.display = 'block';
+            
+            // Show subject skills
+            const skillsContainer = document.getElementById('subject-skills-text');
+            skillsContainer.innerHTML = '';
+            data.subjectSkills.forEach(skill => {
+                const skillBadge = document.createElement('span');
+                skillBadge.className = 'skill-badge';
+                skillBadge.textContent = skill;
+                skillsContainer.appendChild(skillBadge);
+            });
+            document.getElementById('subject-skills-container').style.display = 'block';
+            
+            // Show candidate data
+            const tableBody = document.getElementById('table-body');
+            tableBody.innerHTML = '';
+            
+            data.candidates.forEach(candidate => {
+                const row = document.createElement('tr');
+                
+                // Add highlight for top 3 candidates
+                if (candidate.rank <= 3) {
+                    row.className = 'top-candidate';
+                }
+                
+                // Add candidate data to row
+                row.innerHTML = `
+                    <td>${candidate.rank}</td>
+                    <td>${candidate.name}</td>
+                    <td>${candidate.location}</td>
+                    <td>${candidate.experience}</td>
+                    <td>${candidate.certCount}</td>
+                    <td>${candidate.govWork}</td>
+                    <td>
+                        ${candidate.matchingSkills.map(skill => 
+                            `<span class="skill-badge">${skill}</span>`
+                        ).join('')}
+                    </td>
+                    <td class="skill-count">${candidate.matchingSkillsCount}</td>
+                `;
+                
+                tableBody.appendChild(row);
+            });
+            
+            // Show results container
+            document.getElementById('results-container').style.display = 'block';
+            
+            // Update results count
+            document.getElementById('results-count').textContent = 
+                `Showing ${data.candidates.length} candidates`;
+            
+            // Store current job data for CSV download
+            window.currentJobData = {
+                jobId: jobId,
+                jobRole: data.jobRole,
+                subjectSkills: data.subjectSkills,
+                candidates: data.candidates
+            };
+        }
+
+        // Filter table by rank
+        function filterTableByRank() {
+            const rankInput = document.getElementById('rank-search').value.trim();
+            const tableBody = document.getElementById('table-body');
+            const rows = tableBody.getElementsByTagName('tr');
+            let visibleCount = 0;
+
+            for (let i = 0; i < rows.length; i++) {
+                const rankCell = rows[i].getElementsByTagName('td')[0]; // Rank is the first column
+                if (rankCell) {
+                    const rankValue = rankCell.textContent || rankCell.innerText;
+                    if (rankInput === '' || rankValue === rankInput) {
+                        rows[i].style.display = '';
+                        visibleCount++;
+                    } else {
+                        rows[i].style.display = 'none';
+                    }
+                }
+            }
+            
+            // Update results count
+            document.getElementById('results-count').textContent = 
+                `Showing ${visibleCount} of ${rows.length} candidates`;
+        }
+
+        // Download the entire table as CSV, including job role and subject skills
+        function downloadCSV() {
+            if (!window.currentJobData) {
+                alert('No data available to download. Please process a Job ID first.');
+                return;
+            }
+            
+            let csvContent = '';
+            const data = window.currentJobData;
+
+            // Add job ID section
+            csvContent += 'Job ID\n';
+            csvContent += data.jobId + '\n\n';
+
+            // Add job role section
+            csvContent += 'Job Role\n';
+            csvContent += data.jobRole + '\n\n';
+
+            // Add subject skills section
+            csvContent += 'Subject Skills\n';
+            csvContent += data.subjectSkills.join(', ') + '\n\n';
+
+            // Add table data section
+            csvContent += 'Candidate Details\n';
+            csvContent += 'Rank,Name,Current Location,Experience,Certification Count,Government Work,Matching Skills,Matching Skills Count\n';
+            
+            data.candidates.forEach(candidate => {
+                const row = [
+                    candidate.rank,
+                    `"${candidate.name}"`,
+                    `"${candidate.location}"`,
+                    `"${candidate.experience}"`,
+                    candidate.certCount,
+                    `"${candidate.govWork}"`,
+                    `"${candidate.matchingSkills.join('; ')}"`,
+                    candidate.matchingSkillsCount
+                ];
+                csvContent += row.join(',') + '\n';
+            });
+
+            // Create a blob and trigger download
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', `candidate_details_${data.jobId}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        // Initialize with a sample job ID if needed
+        window.onload = function() {
+            // You can automatically load a sample job ID on page load if desired
+            // setJobId('NC-774172');
+        };
+    </script>
+</body>
+</html>
