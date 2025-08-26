@@ -1,3 +1,5 @@
+from dotenv import load_dotenv
+load_dotenv()
 import os
 import subprocess
 import pandas as pd
@@ -37,7 +39,7 @@ LIBREOFFICE_PATH = r"C:\\Program Files\\LibreOffice\\program\\soffice.exe"
 OUTPUT_CSV = os.path.join(RESUME_FOLDER, "resume_analysis.csv")
 
 # Groq Configuration
-GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable not set. Please set it in your .env file.")
 client = Groq(api_key=GROQ_API_KEY)
