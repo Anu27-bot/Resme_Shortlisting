@@ -3,3 +3,6 @@ __pycache__/
 *.pyc
 venv/
 token.json
+# This is CORRECT - these files should be in .gitignore
+echo credentials.json >> .gitignore
+echo token.json >> .gitignore
