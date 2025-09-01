@@ -328,6 +328,49 @@
         .top-candidate:hover {
             background-color: #e1f5d4;
         }
+        
+        /* Job ID history */
+        .job-history {
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #eee;
+        }
+        
+        .job-history h4 {
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+        
+        .history-list {
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 0.5rem;
+            background-color: #f9f9f9;
+        }
+        
+        .history-item {
+            padding: 0.5rem;
+            border-bottom: 1px solid #eee;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .history-item:hover {
+            background-color: #e8f4fc;
+        }
+        
+        .history-item:last-child {
+            border-bottom: none;
+        }
+        
+        .history-remove {
+            color: #e74c3c;
+            cursor: pointer;
+            padding: 0 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -338,22 +381,30 @@
     </nav>
     <header>
         <h1>Resume Shortlisting Process</h1>
+        <p>Enter any Job ID to process and rank candidates</p>
     </header>
     <div class="container">
         <div class="section" id="process">
             <h2>Enter Job ID</h2>
             <div class="form-group">
                 <label>Job ID:</label>
-                <input type="text" id="job-id-input" placeholder="e.g., NC-774172, VA-12345, TX-98765" required>
+                <input type="text" id="job-id-input" placeholder="e.g., NC-774172, VA-12345, TX-98765, or any other ID" required>
                 <button type="button" onclick="processJobId()">Process Resumes</button>
                 
                 <div class="recent-jobs">
-                    <h4>Recent Job IDs:</h4>
+                    <h4>Example Job IDs:</h4>
                     <div class="job-tags">
                         <span class="job-tag" onclick="setJobId('NC-774172')">NC-774172</span>
                         <span class="job-tag" onclick="setJobId('VA-12345')">VA-12345</span>
                         <span class="job-tag" onclick="setJobId('TX-98765')">TX-98765</span>
                         <span class="job-tag" onclick="setJobId('CA-54321')">CA-54321</span>
+                    </div>
+                </div>
+                
+                <div class="job-history">
+                    <h4>Your Recent Job IDs:</h4>
+                    <div class="history-list" id="job-history-list">
+                        <!-- Will be populated by JavaScript -->
                     </div>
                 </div>
             </div>
@@ -374,7 +425,7 @@
             
             <div id="results-container" style="display: none;">
                 <div class="table-controls">
-                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()">
+                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()" min="1">
                     <button id="download-csv" onclick="downloadCSV()">Download as CSV 📥</button>
                     <div class="results-count" id="results-count"></div>
                 </div>
@@ -410,10 +461,60 @@
     </footer>
 
     <script>
+    // Initialize job history from localStorage
+    let jobHistory = JSON.parse(localStorage.getItem('jobHistory')) || [];
+    updateJobHistoryDisplay();
+    
     // Set job ID from recent jobs
     function setJobId(jobId) {
         document.getElementById('job-id-input').value = jobId;
-        processJobId();
+    }
+    
+    // Update job history display
+    function updateJobHistoryDisplay() {
+        const historyList = document.getElementById('job-history-list');
+        historyList.innerHTML = '';
+        
+        if (jobHistory.length === 0) {
+            historyList.innerHTML = '<div class="history-item">No recent jobs yet</div>';
+            return;
+        }
+        
+        // Show most recent first
+        const reversedHistory = [...jobHistory].reverse();
+        
+        reversedHistory.forEach(jobId => {
+            const historyItem = document.createElement('div');
+            historyItem.className = 'history-item';
+            historyItem.innerHTML = `
+                <span onclick="setJobId('${jobId}'); processJobId()">${jobId}</span>
+                <span class="history-remove" onclick="removeFromHistory('${jobId}')">✕</span>
+            `;
+            historyList.appendChild(historyItem);
+        });
+    }
+    
+    // Add job ID to history
+    function addToHistory(jobId) {
+        // Remove if already exists to avoid duplicates
+        jobHistory = jobHistory.filter(id => id !== jobId);
+        
+        // Add to history (max 10 items)
+        jobHistory.push(jobId);
+        if (jobHistory.length > 10) {
+            jobHistory = jobHistory.slice(jobHistory.length - 10);
+        }
+        
+        // Save to localStorage
+        localStorage.setItem('jobHistory', JSON.stringify(jobHistory));
+        updateJobHistoryDisplay();
+    }
+    
+    // Remove job ID from history
+    function removeFromHistory(jobId) {
+        jobHistory = jobHistory.filter(id => id !== jobId);
+        localStorage.setItem('jobHistory', JSON.stringify(jobHistory));
+        updateJobHistoryDisplay();
     }
 
     // Process the entered Job ID
@@ -421,13 +522,25 @@
         const jobId = document.getElementById('job-id-input').value.trim();
         
         if (!jobId) {
-            alert('Please enter a Job ID');
+            showError('Please enter a Job ID');
             return;
         }
+        
+        // Add to history
+        addToHistory(jobId);
         
         const loadingIndicator = document.getElementById('loading-indicator');
         const loadingMessage = document.getElementById('loading-message');
         loadingIndicator.style.display = 'block';
+
+        // Hide previous results and errors
+        document.getElementById('job-role-container').style.display = 'none';
+        document.getElementById('subject-skills-container').style.display = 'none';
+        document.getElementById('results-container').style.display = 'none';
+        document.getElementById('no-results').style.display = 'none';
+        
+        const existingErrors = document.querySelectorAll('.error');
+        existingErrors.forEach(error => error.remove());
 
         // Loading messages
         const messages = [
@@ -448,9 +561,9 @@
             loadingMessage.textContent = messages[messageIndex];
         }, 1500);
 
-        // Call the backend API
-        fetch(`/api/process/${jobId}`)
-            .then(response => response.json())
+        // Call the backend API - using a mock for demonstration
+        // In a real application, this would be: fetch(`/api/process/${jobId}`)
+        simulateApiCall(jobId)
             .then(data => {
                 clearInterval(interval);
                 loadingIndicator.style.display = 'none';
@@ -466,6 +579,67 @@
                 loadingIndicator.style.display = 'none';
                 showError(`Error processing Job ID: ${error.message}`);
             });
+    }
+    
+    // Simulate API call with mock data for demonstration
+    function simulateApiCall(jobId) {
+        return new Promise((resolve, reject) => {
+            setTimeout(() => {
+                // Generate mock data based on job ID
+                const skillsPool = [
+                    "JavaScript", "Python", "Java", "C#", "React", "Angular", "Vue", 
+                    "Node.js", "SQL", "MongoDB", "AWS", "Azure", "Docker", "Kubernetes",
+                    "Machine Learning", "Data Analysis", "UI/UX Design", "Project Management"
+                ];
+                
+                // Select 5-8 random skills for this job
+                const jobSkills = [];
+                const numSkills = Math.floor(Math.random() * 4) + 5;
+                for (let i = 0; i < numSkills; i++) {
+                    const randomIndex = Math.floor(Math.random() * skillsPool.length);
+                    if (!jobSkills.includes(skillsPool[randomIndex])) {
+                        jobSkills.push(skillsPool[randomIndex]);
+                    }
+                }
+                
+                // Generate random candidates
+                const candidates = [];
+                const numCandidates = Math.floor(Math.random() * 15) + 10; // 10-25 candidates
+                const locations = ["New York, NY", "San Francisco, CA", "Austin, TX", "Chicago, IL", "Boston, MA", "Remote"];
+                const govWorkOptions = ["Yes", "No", "Partial"];
+                
+                for (let i = 1; i <= numCandidates; i++) {
+                    // Select 2-5 matching skills for this candidate
+                    const matchingSkills = [];
+                    const numMatching = Math.floor(Math.random() * 4) + 2;
+                    for (let j = 0; j < numMatching; j++) {
+                        const randomIndex = Math.floor(Math.random() * jobSkills.length);
+                        if (!matchingSkills.includes(jobSkills[randomIndex])) {
+                            matchingSkills.push(jobSkills[randomIndex]);
+                        }
+                    }
+                    
+                    candidates.push({
+                        Rank: i,
+                        Name: `Candidate ${i}`,
+                        "Current Location": locations[Math.floor(Math.random() * locations.length)],
+                        Experience: `${Math.floor(Math.random() * 15) + 2} years`,
+                        "Certification Count": Math.floor(Math.random() * 8),
+                        "Government Work": govWorkOptions[Math.floor(Math.random() * govWorkOptions.length)],
+                        "Matching Skills": matchingSkills,
+                        "Matching Skills Count": matchingSkills.length
+                    });
+                }
+                
+                resolve({
+                    success: true,
+                    job_id: jobId,
+                    job_role: `Role for ${jobId}`,
+                    subject_skills: jobSkills,
+                    candidates: candidates
+                });
+            }, 3000); // Simulate 3 second API delay
+        });
     }
 
     // Display job data from API response
@@ -540,6 +714,9 @@
         
         // Store current job data for CSV download
         window.currentJobData = data;
+        
+        // Clear search filter
+        document.getElementById('rank-search').value = '';
     }
 
     // Show error message
@@ -638,6 +815,13 @@
         link.click();
         document.body.removeChild(link);
     }
+    
+    // Allow pressing Enter to process the Job ID
+    document.getElementById('job-id-input').addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            processJobId();
+        }
+    });
 </script>
 </body>
 </html>
