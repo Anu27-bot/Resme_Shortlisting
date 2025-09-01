@@ -43,8 +43,7 @@ GROQ_API_KEY = os.getenv("GROQ_API_KEY")
 if not GROQ_API_KEY:
     raise ValueError("GROQ_API_KEY environment variable not set. Please set it in your .env file.")
 client = Groq(api_key=GROQ_API_KEY)
-GROQ_MODEL = 'llama3-8b-8192'
-
+GROQ_MODEL = 'llama-3.1-8b-instant'
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 
 # Supabase Configuration
