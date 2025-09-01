@@ -61,7 +61,7 @@ def index():
 
 @app.route('/process', methods=['GET', 'POST'])
 def process():
-    recent_jobs = get_recent_job_ids()
+    recent_jobs = get_recent_jobs()
     
     if request.method == 'POST':
         job_id = request.form.get('job_id').strip()
@@ -186,25 +186,36 @@ def process():
 
 def render_processed_results(df, job_id, recent_jobs):
     """Helper function to render processed results"""
-    # Extract job role from the data
+    # Extract job role from the data - FIXED LOGIC
     job_role = "N/A"
     if 'Job Role' in df.columns:
-        job_roles = df['Job Role'].dropna().unique()
-        if len(job_roles) > 0:
-            job_role = job_roles[0]
+        # Get the first non-NA, non-empty job role
+        non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
+        if len(non_empty_roles) > 0:
+            job_role = non_empty_roles.iloc[0]
+        else:
+            # Try to extract from subject skills if available
+            if 'Subject Skills' in df.columns:
+                subject_skills = df['Subject Skills'].dropna().unique()
+                if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
+                    job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
 
     # Extract subject skills from the data
     subject_skills = []
     if 'Subject Skills' in df.columns:
         skills = df['Subject Skills'].dropna().unique()
-        if len(skills) > 0:
-            subject_skills = [s.strip() for s in skills[0].split(',') if s.strip()]
+        if len(skills) > 0 and skills[0] != 'N/A':
+            # Clean up the skills string
+            skills_str = str(skills[0])
+            if 'with' in skills_str:
+                skills_str = skills_str.split('with')[1].strip()
+            subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
 
     # Define the correct column names
     available_columns = [
         "Rank", "Name", "Current Location", 
         "Experience", "Certification Count", "Government Work", 
-        "Matching Skills", "Matching Skills Count"
+        "Matching Skills", "Matching Skills Count", "Job Role"  # Added Job Role to display
     ]
     
     # Filter to only include columns that actually exist
@@ -215,6 +226,8 @@ def render_processed_results(df, job_id, recent_jobs):
         df["Matching Skills"] = "N/A"
     if "Matching Skills Count" not in df.columns:
         df["Matching Skills Count"] = 0
+    if "Job Role" not in df.columns:
+        df["Job Role"] = job_role  # Add the extracted job role
 
     table_data = df[columns_order].to_dict(orient='records')
 
@@ -267,18 +280,26 @@ def api_process(job_id):
                         'error': f'Results for Job ID "{job_id}" are empty'
                     }), 404
 
-                # Extract job information
+                # Extract job information - FIXED LOGIC
                 job_role = "N/A"
                 if 'Job Role' in df.columns:
-                    job_roles = df['Job Role'].dropna().unique()
-                    if len(job_roles) > 0:
-                        job_role = job_roles[0]
+                    non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
+                    if len(non_empty_roles) > 0:
+                        job_role = non_empty_roles.iloc[0]
+                    else:
+                        if 'Subject Skills' in df.columns:
+                            subject_skills = df['Subject Skills'].dropna().unique()
+                            if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
+                                job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
 
                 subject_skills = []
                 if 'Subject Skills' in df.columns:
                     skills = df['Subject Skills'].dropna().unique()
-                    if len(skills) > 0:
-                        subject_skills = [s.strip() for s in skills[0].split(',') if s.strip()]
+                    if len(skills) > 0 and skills[0] != 'N/A':
+                        skills_str = str(skills[0])
+                        if 'with' in skills_str:
+                            skills_str = skills_str.split('with')[1].strip()
+                        subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
 
                 # Prepare response data
                 response_data = {
