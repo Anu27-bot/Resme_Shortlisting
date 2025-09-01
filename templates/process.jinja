@@ -322,22 +322,24 @@
                 <p id="loading-message">Processing...</p>
             </div>
 
-            {% if job_id %}
-                <div class="job-info">
-                    <h3>Job Analysis: {{ job_id }}</h3>
-                    {% if job_role and job_role != "N/A" %}
-                        <p><strong>Role:</strong> {{ job_role }}</p>
-                    {% endif %}
-                    
-                    {% if subject_skills and subject_skills|length > 0 %}
-                        <p><strong>Required Skills:</strong>
-                            {% for skill in subject_skills %}
-                                <span class="skill-badge">{{ skill }}</span>
-                            {% endfor %}
-                        </p>
-                    {% endif %}
-                </div>
-            {% endif %}
+           {% if job_id %}
+    <div class="job-info">
+        <h3>Job Analysis: {{ job_id }}</h3>
+        {% if job_role and job_role != "N/A" %}
+            <p><strong>Role:</strong> {{ job_role }}</p>
+        {% else %}
+            <p><strong>Role:</strong> Not specified</p>
+        {% endif %}
+        
+        {% if subject_skills and subject_skills|length > 0 %}
+            <p><strong>Required Skills:</strong>
+                {% for skill in subject_skills %}
+                    <span class="skill-badge">{{ skill }}</span>
+                {% endfor %}
+            </p>
+        {% endif %}
+    </div>
+{% endif %}
             
             {% if table_data and columns and table_data|length > 0 %}
                 <h3>Candidate Details (Sorted by Rank):</h3>
