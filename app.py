@@ -10,6 +10,7 @@ import os
 import tempfile
 import traceback
 import glob
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = 'your-secret-key-here'
@@ -18,6 +19,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 project_root = os.path.dirname(os.path.abspath(__file__))
 os.chdir(project_root)
+
+@app.context_processor
+def inject_now():
+    return {'now': datetime.now()}
 
 def get_recent_job_ids():
     """Get recent job IDs from existing CSV files"""
@@ -61,7 +66,7 @@ def index():
 
 @app.route('/process', methods=['GET', 'POST'])
 def process():
-    recent_jobs = get_recent_jobs()
+    recent_jobs = get_recent_job_ids()  # FIXED: Changed from get_recent_jobs() to get_recent_job_ids()
     
     if request.method == 'POST':
         job_id = request.form.get('job_id').strip()
@@ -174,9 +179,21 @@ def process():
                 # Restore original resume folder
                 anu.RESUME_FOLDER = original_resume_folder
 
+    # Handle GET requests with job_id parameter
+    job_id = request.args.get('job_id')
+    if job_id:
+        # Check if we have cached results for this job ID
+        cached_csv = os.path.join(project_root, "Resumes", f"resume_analysis_{job_id}.csv")
+        if os.path.exists(cached_csv):
+            try:
+                df = pd.read_csv(cached_csv)
+                return render_processed_results(df, job_id, recent_jobs)
+            except Exception as e:
+                flash(f'Error reading cached results: {str(e)}', 'error')
+
     return render_template(
         'process.jinja',
-        job_id=None,
+        job_id=job_id,
         recent_jobs=recent_jobs,
         subject_skills=[],
         job_role=None,
