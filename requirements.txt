@@ -1,6 +1,4 @@
-# Odoo integration
-odoo-client==0.1.5
-xmlrpc-client==3.11.5
+
 
 pandas>=1.3.0
 tabulate>=0.8.0
