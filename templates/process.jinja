@@ -14,11 +14,15 @@
             display: flex;
             flex-direction: column;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f8f9fa;
         }
         .container {
             flex: 1;
             padding: 20px;
             padding-bottom: 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
         }
         /* Override footer to make it part of the page flow */
         footer {
@@ -28,6 +32,7 @@
             background-color: #34495e;
             color: white;
             text-align: center;
+            margin-top: auto;
         }
         /* Ensure table wrapper allows scrolling and headers are sticky */
         .table-wrapper {
@@ -37,6 +42,7 @@
             border: 1px solid #ddd;
             border-radius: 5px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            background-color: white;
         }
         .results-table {
             width: 100%;
@@ -63,6 +69,7 @@
             gap: 10px;
             margin-bottom: 15px;
             align-items: center;
+            flex-wrap: wrap;
         }
         #rank-search {
             padding: 8px 12px;
@@ -89,10 +96,13 @@
             border-radius: 5px;
             margin-bottom: 20px;
             border-left: 4px solid #3498db;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
         .job-info h3 {
             margin-top: 0;
             color: #2c3e50;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
         }
         .loader {
             border: 5px solid #f3f3f3;
@@ -115,10 +125,169 @@
             border-radius: 12px;
             margin: 2px;
             font-size: 0.85em;
+            border: 1px solid #d1e7f7;
         }
         .skill-count {
             font-weight: bold;
             color: #3498db;
+        }
+        .success {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #c3e6cb;
+        }
+        .error {
+            background-color: #f8d7da;
+            color: #721c24;
+            padding: 10px;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            border: 1px solid #f5c6cb;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2c3e50;
+        }
+        .form-group input {
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            width: 100%;
+            max-width: 300px;
+            margin-right: 10px;
+        }
+        .form-group button {
+            padding: 10px 20px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background-color 0.3s;
+        }
+        .form-group button:hover {
+            background-color: #2980b9;
+        }
+        nav {
+            background-color: #2c3e50;
+            padding: 1em;
+        }
+        nav ul {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            padding: 0.5em 1em;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        nav ul li a:hover {
+            background-color: #34495e;
+        }
+        header {
+            background-color: #3498db;
+            color: white;
+            padding: 2em 0;
+            text-align: center;
+        }
+        header h1 {
+            margin: 0;
+        }
+        .section {
+            margin-bottom: 30px;
+        }
+        .section h2 {
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+            margin-bottom: 20px;
+        }
+        .section h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+        .recent-jobs {
+            margin-top: 30px;
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .recent-jobs h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        .job-badge {
+            display: inline-block;
+            background-color: #e8f4fc;
+            color: #2c3e50;
+            padding: 5px 12px;
+            border-radius: 16px;
+            margin: 5px;
+            text-decoration: none;
+            border: 1px solid #d1e7f7;
+            transition: all 0.3s;
+        }
+        .job-badge:hover {
+            background-color: #3498db;
+            color: white;
+        }
+        .no-results {
+            text-align: center;
+            padding: 40px;
+            background-color: white;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .no-results p {
+            color: #7f8c8d;
+            font-size: 1.1em;
+        }
+        .rank-1 {
+            background-color: #fff9e6;
+        }
+        .rank-1 td:first-child {
+            font-weight: bold;
+            color: #e67e22;
+        }
+        .rank-2 {
+            background-color: #f0f9f0;
+        }
+        .rank-3 {
+            background-color: #f0f4f9;
+        }
+        .government-yes {
+            background-color: #e8f5e8 !important;
+        }
+        @media (max-width: 768px) {
+            .table-controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            #rank-search {
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            .container {
+                padding: 10px;
+            }
         }
     </style>
 </head>
@@ -144,7 +313,7 @@
             <form method="POST" action="{{ url_for('process') }}" id="job-id-form">
                 <div class="form-group">
                     <label>Job ID:</label>
-                    <input type="text" name="job_id" placeholder="e.g., VA-12345" required>
+                    <input type="text" name="job_id" placeholder="e.g., TX-70126018" required value="{{ job_id if job_id else '' }}">
                     <button type="submit">Process Resumes</button>
                 </div>
             </form>
@@ -153,28 +322,27 @@
                 <p id="loading-message">Processing...</p>
             </div>
 
-            {% if job_role is not none and job_role != "N/A" %}
+            {% if job_id %}
                 <div class="job-info">
-                    <h3>Job Role:</h3>
-                    <p>{{ job_role }}</p>
-                </div>
-            {% endif %}
-
-            {% if subject_skills is not none and subject_skills|length > 0 %}
-                <div class="job-info">
-                    <h3>Subject Skills:</h3>
-                    <p>
-                        {% for skill in subject_skills %}
-                            <span class="skill-badge">{{ skill }}</span>
-                        {% endfor %}
-                    </p>
+                    <h3>Job Analysis: {{ job_id }}</h3>
+                    {% if job_role and job_role != "N/A" %}
+                        <p><strong>Role:</strong> {{ job_role }}</p>
+                    {% endif %}
+                    
+                    {% if subject_skills and subject_skills|length > 0 %}
+                        <p><strong>Required Skills:</strong>
+                            {% for skill in subject_skills %}
+                                <span class="skill-badge">{{ skill }}</span>
+                            {% endfor %}
+                        </p>
+                    {% endif %}
                 </div>
             {% endif %}
             
-            {% if table_data is not none and columns is not none and table_data|length > 0 and columns|length > 0 %}
+            {% if table_data and columns and table_data|length > 0 %}
                 <h3>Candidate Details (Sorted by Rank):</h3>
                 <div class="table-controls">
-                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()">
+                    <input type="number" id="rank-search" placeholder="Search by Rank" oninput="filterTableByRank()" min="1">
                     <button id="download-csv" onclick="downloadCSV()">Download as CSV 📥</button>
                 </div>
                 <div class="table-wrapper">
@@ -188,7 +356,7 @@
                         </thead>
                         <tbody id="table-body">
                             {% for row in table_data %}
-                                <tr>
+                                <tr class="rank-{{ row['Rank'] }} {% if 'Yes' in row.get('Government Work', '') %}government-yes{% endif %}">
                                     {% for col in columns %}
                                         {% if col == "Matching Skills" and row[col] is not none and row[col] != "N/A" %}
                                             <td>
@@ -202,6 +370,10 @@
                                             </td>
                                         {% elif col == "Matching Skills Count" %}
                                             <td class="skill-count">{{ row[col] }}</td>
+                                        {% elif col == "Rank" %}
+                                            <td><strong>#{{ row[col] }}</strong></td>
+                                        {% elif col == "Government Work" and "Yes" in row[col] %}
+                                            <td><span style="color: green; font-weight: bold;">✓ {{ row[col] }}</span></td>
                                         {% else %}
                                             <td>{{ row[col] }}</td>
                                         {% endif %}
@@ -211,8 +383,21 @@
                         </tbody>
                     </table>
                 </div>
-            {% else %}
-                <p>No candidate details to display.</p>
+            {% elif job_id and not table_data %}
+                <div class="no-results">
+                    <p>No candidate details to display for this Job ID.</p>
+                </div>
+            {% endif %}
+
+            {% if recent_jobs and recent_jobs|length > 0 %}
+                <div class="recent-jobs">
+                    <h3>Recent Job Analyses</h3>
+                    <div>
+                        {% for job in recent_jobs %}
+                            <a href="/process?job_id={{ job }}" class="job-badge">{{ job }}</a>
+                        {% endfor %}
+                    </div>
+                </div>
             {% endif %}
         </div>
     </div>
@@ -258,17 +443,25 @@
                 clearInterval(interval);
                 sessionStorage.removeItem('loadingInterval');
             }
-            {% if table_data is not none and table_data|length > 0 or subject_skills is not none and subject_skills|length > 0 %}
+            
+            // Hide loading indicator if we have results
+            {% if table_data and table_data|length > 0 %}
                 loadingIndicator.style.display = 'none';
+            {% endif %}
+            
+            // If we have a job ID in the URL, focus on the search field
+            {% if job_id %}
+                document.getElementById('rank-search').focus();
             {% endif %}
         });
 
         // Only define these functions if table_data exists and is not empty
-        {% if table_data is not none and table_data|length > 0 %}
+        {% if table_data and table_data|length > 0 %}
             const columns = {{ columns|tojson | safe }};
             const tableData = {{ table_data|tojson | safe }};
             const subjectSkills = {{ subject_skills|tojson | safe }};
             const jobRole = {{ job_role|tojson | safe }};
+            const jobId = {{ job_id|tojson | safe }};
 
             // Store the original table rows for downloading the entire table
             const originalRows = tableData.map(row => {
@@ -281,7 +474,7 @@
                     // Escape commas and quotes in the value
                     if (typeof value === 'string') {
                         value = value.replace(/"/g, '""');
-                        if (value.includes(',') || value.includes(';')) {
+                        if (value.includes(',') || value.includes(';') || value.includes('"')) {
                             value = `"${value}"`;
                         }
                     }
@@ -298,7 +491,7 @@
                 for (let i = 0; i < rows.length; i++) {
                     const rankCell = rows[i].getElementsByTagName('td')[0]; // Rank is the first column
                     if (rankCell) {
-                        const rankValue = rankCell.textContent || rankCell.innerText;
+                        const rankValue = rankCell.textContent.replace('#', '') || rankCell.innerText.replace('#', '');
                         if (rankInput === '' || rankValue === rankInput) {
                             rows[i].style.display = '';
                         } else {
@@ -312,18 +505,19 @@
             function downloadCSV() {
                 let csvContent = '';
 
-                // Add job role section
-                csvContent += 'Job Role\n';
-                csvContent += (jobRole && jobRole !== "N/A" ? jobRole : 'None') + '\n\n';
-
+                // Add job information section
+                csvContent += 'Job Analysis\n';
+                csvContent += `Job ID,${jobId}\n`;
+                csvContent += `Job Role,${jobRole && jobRole !== "N/A" ? jobRole : 'None'}\n`;
+                
                 // Add subject skills section if available
                 if (subjectSkills && subjectSkills.length > 0) {
-                    csvContent += 'Subject Skills\n';
-                    csvContent += subjectSkills.join(', ') + '\n\n';
+                    csvContent += `Subject Skills,"${subjectSkills.join(', ')}"\n`;
                 } else {
-                    csvContent += 'Subject Skills\n';
-                    csvContent += 'None\n\n';
+                    csvContent += 'Subject Skills,None\n';
                 }
+                
+                csvContent += '\n';
 
                 // Add table data section
                 csvContent += 'Candidate Details\n';
@@ -337,7 +531,7 @@
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
-                link.setAttribute('download', 'candidate_details_with_skills.csv');
+                link.setAttribute('download', `candidate_details_${jobId}.csv`);
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
