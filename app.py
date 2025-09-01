@@ -201,9 +201,11 @@ def process():
         columns=[]
     )
 
+# Modified render_processed_results function in app.py
+
 def render_processed_results(df, job_id, recent_jobs):
     """Helper function to render processed results"""
-    # Extract job role from the data - FIXED LOGIC
+    # Extract job role from the data
     job_role = "N/A"
     if 'Job Role' in df.columns:
         # Get the first non-NA, non-empty job role
@@ -215,7 +217,30 @@ def render_processed_results(df, job_id, recent_jobs):
             if 'Subject Skills' in df.columns:
                 subject_skills = df['Subject Skills'].dropna().unique()
                 if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
-                    job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
+                    skills_str = str(subject_skills[0])
+                    if 'with' in skills_str.lower():  # Case-insensitive check
+                        parts = re.split(r'with', skills_str, flags=re.IGNORECASE, maxsplit=1)
+                        pre_with = parts[0].strip()
+                        # Define possible prefixes for location/modality
+                        prefixes = [
+                            "Onsite/Local ",
+                            "Remote/Local ",
+                            "Hybrid/Local ",
+                            "Onsite/Remote ",
+                            "Local/Onsite ",
+                            "Local/Remote ",
+                            "Local/Hybrid ",
+                            # Add more variations if needed based on your email subjects
+                        ]
+                        # Remove prefix if matched
+                        for prefix in prefixes:
+                            if pre_with.lower().startswith(prefix.lower()):
+                                job_role = pre_with[len(prefix):].strip()
+                                break
+                        else:
+                            job_role = pre_with
+                    else:
+                        job_role = skills_str
 
     # Extract subject skills from the data
     subject_skills = []
@@ -224,15 +249,15 @@ def render_processed_results(df, job_id, recent_jobs):
         if len(skills) > 0 and skills[0] != 'N/A':
             # Clean up the skills string
             skills_str = str(skills[0])
-            if 'with' in skills_str:
-                skills_str = skills_str.split('with')[1].strip()
+            if 'with' in skills_str.lower():
+                skills_str = re.split(r'with', skills_str, flags=re.IGNORECASE, maxsplit=1)[1].strip()
             subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
 
     # Define the correct column names
     available_columns = [
         "Rank", "Name", "Current Location", 
         "Experience", "Certification Count", "Government Work", 
-        "Matching Skills", "Matching Skills Count", "Job Role"
+        "Matching Skills", "Matching Skills Count", "Job Role"  # Added Job Role to display
     ]
     
     # Filter to only include columns that actually exist
@@ -244,7 +269,7 @@ def render_processed_results(df, job_id, recent_jobs):
     if "Matching Skills Count" not in df.columns:
         df["Matching Skills Count"] = 0
     if "Job Role" not in df.columns:
-        df["Job Role"] = job_role
+        df["Job Role"] = job_role  # Add the extracted job role
 
     table_data = df[columns_order].to_dict(orient='records')
 
