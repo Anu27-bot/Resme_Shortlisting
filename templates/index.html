@@ -410,256 +410,26 @@
     </footer>
 
     <script>
-        // Sample data for different job IDs with all profiles
-        const jobData = {
-            "NC-774172": {
-                jobRole: "Infrastructure/Network Architect (CCNP/CCIE/15+)",
-                subjectSkills: [
-                    "Infrastructure/Network Architect (CCNP/CCIE/15+)",
-                    "PM",
-                    "LANs",
-                    "VLAN",
-                    "WLANs",
-                    "SANs",
-                    "RTLS",
-                    "VPN",
-                    "TCP/IP",
-                    "SIP",
-                    "WPA2",
-                    "UCS and COTS experience"
-                ],
-                candidates: [
-                    {
-                        rank: 1,
-                        name: "Michael Adam Pugaczewski",
-                        location: "Fuquay Varina, NC",
-                        experience: "15.50 years",
-                        certCount: 6,
-                        govWork: "Yes: Department of Defense, Ground Intelligence Support Activity, Army National Guard",
-                        matchingSkills: ["TCP/IP (2)", "VLAN (2)", "VPN (2)", "LAN (2)", "WAN (1)", "Cisco (1)"],
-                        matchingSkillsCount: 10
-                    },
-                    {
-                        rank: 2,
-                        name: "John Doe",
-                        location: "RTP, NC",
-                        experience: "15.50 years",
-                        certCount: 2,
-                        govWork: "Yes: Town of Cary, GSK",
-                        matchingSkills: ["VLAN (2)", "Cisco (1)"],
-                        matchingSkillsCount: 3
-                    },
-                    {
-                        rank: 3,
-                        name: "Nate Pauze",
-                        location: "Raleigh, NC",
-                        experience: "9.42 years",
-                        certCount: 3,
-                        govWork: "Yes: National Institute of Environmental Health Sciences, Commonwealth of Massachusetts Department of Central Healthcare Information and Analysis (CHIA)",
-                        matchingSkills: ["Cisco (1)", "CCIE (2)", "CCNP (2)"],
-                        matchingSkillsCount: 5
-                    },
-                    {
-                        rank: 4,
-                        name: "W. Ted Meng",
-                        location: "Raleigh, NC, USA",
-                        experience: "15.42 years",
-                        certCount: 11,
-                        govWork: "Yes: Social Security Administration (SSA)",
-                        matchingSkills: ["Cisco (1)", "CCIE (2)", "CCNP (2)"],
-                        matchingSkillsCount: 5
-                    },
-                    {
-                        rank: 5,
-                        name: "Thiago Henriques",
-                        location: "Not specified",
-                        experience: "22.00 years",
-                        certCount: 11,
-                        govWork: "No",
-                        matchingSkills: ["VPN (2)"],
-                        matchingSkillsCount: 2
-                    },
-                    {
-                        rank: 6,
-                        name: "Mathias Mulumba",
-                        location: "Not specified",
-                        experience: "14.50 years",
-                        certCount: 12,
-                        govWork: "No",
-                        matchingSkills: ["Virtualization (1)"],
-                        matchingSkillsCount: 1
-                    }
-                ]
-            },
-            "VA-12345": {
-                jobRole: "Software Engineer (Java/Python)",
-                subjectSkills: [
-                    "Java",
-                    "Python",
-                    "Spring Boot",
-                    "Django",
-                    "REST APIs",
-                    "Microservices",
-                    "AWS",
-                    "Docker",
-                    "Kubernetes"
-                ],
-                candidates: [
-                    {
-                        rank: 1,
-                        name: "Sarah Johnson",
-                        location: "Richmond, VA",
-                        experience: "8.20 years",
-                        certCount: 4,
-                        govWork: "Yes: Department of Veterans Affairs",
-                        matchingSkills: ["Java (3)", "Spring Boot (2)", "AWS (2)", "Docker (1)"],
-                        matchingSkillsCount: 8
-                    },
-                    {
-                        rank: 2,
-                        name: "David Chen",
-                        location: "Arlington, VA",
-                        experience: "5.80 years",
-                        certCount: 3,
-                        govWork: "No",
-                        matchingSkills: ["Python (2)", "Django (1)", "REST APIs (1)"],
-                        matchingSkillsCount: 4
-                    },
-                    {
-                        rank: 3,
-                        name: "Robert Smith",
-                        location: "Alexandria, VA",
-                        experience: "7.30 years",
-                        certCount: 5,
-                        govWork: "Yes: Federal Reserve Board",
-                        matchingSkills: ["Java (2)", "Microservices (2)", "Kubernetes (1)"],
-                        matchingSkillsCount: 5
-                    },
-                    {
-                        rank: 4,
-                        name: "Jennifer Wilson",
-                        location: "Fairfax, VA",
-                        experience: "6.10 years",
-                        certCount: 3,
-                        govWork: "No",
-                        matchingSkills: ["Python (2)", "AWS (1)", "Docker (1)"],
-                        matchingSkillsCount: 4
-                    }
-                ]
-            },
-            "TX-98765": {
-                jobRole: "Data Scientist (Machine Learning)",
-                subjectSkills: [
-                    "Python",
-                    "R",
-                    "Machine Learning",
-                    "TensorFlow",
-                    "PyTorch",
-                    "SQL",
-                    "Data Visualization",
-                    "Statistical Analysis"
-                ],
-                candidates: [
-                    {
-                        rank: 1,
-                        name: "Maria Rodriguez",
-                        location: "Austin, TX",
-                        experience: "6.50 years",
-                        certCount: 5,
-                        govWork: "Yes: Texas Department of Transportation",
-                        matchingSkills: ["Python (3)", "Machine Learning (2)", "TensorFlow (2)", "SQL (1)"],
-                        matchingSkillsCount: 8
-                    },
-                    {
-                        rank: 2,
-                        name: "James Wilson",
-                        location: "Houston, TX",
-                        experience: "4.20 years",
-                        certCount: 2,
-                        govWork: "No",
-                        matchingSkills: ["R (2)", "Statistical Analysis (1)", "Data Visualization (1)"],
-                        matchingSkillsCount: 4
-                    },
-                    {
-                        rank: 3,
-                        name: "Thomas Brown",
-                        location: "Dallas, TX",
-                        experience: "5.80 years",
-                        certCount: 4,
-                        govWork: "Yes: City of Dallas IT Department",
-                        matchingSkills: ["Python (2)", "Machine Learning (1)", "PyTorch (1)", "SQL (1)"],
-                        matchingSkillsCount: 5
-                    },
-                    {
-                        rank: 4,
-                        name: "Lisa Garcia",
-                        location: "San Antonio, TX",
-                        experience: "7.10 years",
-                        certCount: 6,
-                        govWork: "No",
-                        matchingSkills: ["R (2)", "Data Visualization (2)", "Statistical Analysis (1)"],
-                        matchingSkillsCount: 5
-                    }
-                ]
-            },
-            "CA-54321": {
-                jobRole: "Cloud DevOps Engineer",
-                subjectSkills: [
-                    "AWS",
-                    "Azure",
-                    "Terraform",
-                    "Kubernetes",
-                    "Docker",
-                    "CI/CD",
-                    "Jenkins",
-                    "Linux"
-                ],
-                candidates: [
-                    {
-                        rank: 1,
-                        name: "Jennifer Lee",
-                        location: "San Francisco, CA",
-                        experience: "7.80 years",
-                        certCount: 7,
-                        govWork: "Yes: State of California IT Department",
-                        matchingSkills: ["AWS (3)", "Terraform (2)", "Kubernetes (2)", "Docker (2)"],
-                        matchingSkillsCount: 9
-                    },
-                    {
-                        rank: 2,
-                        name: "Robert Kim",
-                        location: "Los Angeles, CA",
-                        experience: "5.20 years",
-                        certCount: 4,
-                        govWork: "No",
-                        matchingSkills: ["Azure (2)", "CI/CD (1)", "Jenkins (1)"],
-                        matchingSkillsCount: 4
-                    },
-                    {
-                        rank: 3,
-                        name: "Michael Taylor",
-                        location: "San Diego, CA",
-                        experience: "6.50 years",
-                        certCount: 5,
-                        govWork: "Yes: Navy Information Operations Command",
-                        matchingSkills: ["AWS (2)", "Kubernetes (2)", "Linux (1)", "Docker (1)"],
-                        matchingSkillsCount: 6
-                    },
-                    {
-                        rank: 4,
-                        name: "Susan Martinez",
-                        location: "San Jose, CA",
-                        experience: "8.20 years",
-                        certCount: 8,
-                        govWork: "No",
-                        matchingSkills: ["Azure (3)", "Terraform (2)", "CI/CD (2)"],
-                        matchingSkillsCount: 7
-                    }
-                ]
-            }
-        };
+    // Set job ID from recent jobs
+    function setJobId(jobId) {
+        document.getElementById('job-id-input').value = jobId;
+        processJobId();
+    }
 
-        // Loading indicator messages
+    // Process the entered Job ID
+    function processJobId() {
+        const jobId = document.getElementById('job-id-input').value.trim();
+        
+        if (!jobId) {
+            alert('Please enter a Job ID');
+            return;
+        }
+        
+        const loadingIndicator = document.getElementById('loading-indicator');
+        const loadingMessage = document.getElementById('loading-message');
+        loadingIndicator.style.display = 'block';
+
+        // Loading messages
         const messages = [
             "Processing Job ID...",
             "Clearing previous resumes...",
@@ -670,213 +440,204 @@
             "Extracting the details or columns..."
         ];
 
-        // Hide loading indicator initially
-        document.getElementById('loading-indicator').style.display = 'none';
-
-        // Set job ID from recent jobs
-        function setJobId(jobId) {
-            document.getElementById('job-id-input').value = jobId;
-            processJobId();
-        }
-
-        // Process the entered Job ID
-        function processJobId() {
-            const jobId = document.getElementById('job-id-input').value.trim();
-            
-            if (!jobId) {
-                alert('Please enter a Job ID');
-                return;
-            }
-            
-            const loadingIndicator = document.getElementById('loading-indicator');
-            const loadingMessage = document.getElementById('loading-message');
-            loadingIndicator.style.display = 'block';
-
-            // Cycle through messages
-            let messageIndex = 0;
+        // Cycle through messages
+        let messageIndex = 0;
+        loadingMessage.textContent = messages[messageIndex];
+        const interval = setInterval(() => {
+            messageIndex = (messageIndex + 1) % messages.length;
             loadingMessage.textContent = messages[messageIndex];
-            const interval = setInterval(() => {
-                messageIndex = (messageIndex + 1) % messages.length;
-                loadingMessage.textContent = messages[messageIndex];
-            }, 1500); // Change message every 1.5 seconds
+        }, 1500);
 
-            // Simulate processing delay
-            setTimeout(() => {
+        // Call the backend API
+        fetch(`/api/process/${jobId}`)
+            .then(response => response.json())
+            .then(data => {
                 clearInterval(interval);
                 loadingIndicator.style.display = 'none';
                 
-                // Check if we have data for this job ID
-                if (jobData[jobId]) {
-                    displayJobData(jobId, jobData[jobId]);
+                if (data.success) {
+                    displayJobData(data);
                 } else {
-                    // Show error for unknown job ID
-                    document.getElementById('job-role-container').style.display = 'none';
-                    document.getElementById('subject-skills-container').style.display = 'none';
-                    document.getElementById('results-container').style.display = 'none';
-                    document.getElementById('no-results').style.display = 'block';
-                    
-                    // Show error message
-                    const errorDiv = document.createElement('div');
-                    errorDiv.className = 'error';
-                    errorDiv.textContent = `No data found for Job ID: ${jobId}. Try one of the sample Job IDs.`;
-                    
-                    // Remove any existing error messages
-                    const existingErrors = document.querySelectorAll('.error');
-                    existingErrors.forEach(error => error.remove());
-                    
-                    document.querySelector('.form-group').appendChild(errorDiv);
+                    showError(data.error || `No data found for Job ID: ${jobId}`);
                 }
-            }, 3000);
-        }
+            })
+            .catch(error => {
+                clearInterval(interval);
+                loadingIndicator.style.display = 'none';
+                showError(`Error processing Job ID: ${error.message}`);
+            });
+    }
 
-        // Display job data
-        function displayJobData(jobId, data) {
-            // Hide no results message
-            document.getElementById('no-results').style.display = 'none';
-            
-            // Show job role
-            document.getElementById('job-role-text').textContent = data.jobRole;
-            document.getElementById('job-role-container').style.display = 'block';
-            
-            // Show subject skills
-            const skillsContainer = document.getElementById('subject-skills-text');
-            skillsContainer.innerHTML = '';
-            data.subjectSkills.forEach(skill => {
+    // Display job data from API response
+    function displayJobData(data) {
+        // Hide no results message
+        document.getElementById('no-results').style.display = 'none';
+        
+        // Show job role
+        document.getElementById('job-role-text').textContent = data.job_role;
+        document.getElementById('job-role-container').style.display = 'block';
+        
+        // Show subject skills
+        const skillsContainer = document.getElementById('subject-skills-text');
+        skillsContainer.innerHTML = '';
+        if (data.subject_skills && data.subject_skills.length > 0) {
+            data.subject_skills.forEach(skill => {
                 const skillBadge = document.createElement('span');
                 skillBadge.className = 'skill-badge';
                 skillBadge.textContent = skill;
                 skillsContainer.appendChild(skillBadge);
             });
-            document.getElementById('subject-skills-container').style.display = 'block';
-            
-            // Show candidate data
-            const tableBody = document.getElementById('table-body');
-            tableBody.innerHTML = '';
-            
-            data.candidates.forEach(candidate => {
-                const row = document.createElement('tr');
-                
-                // Add highlight for top 3 candidates
-                if (candidate.rank <= 3) {
-                    row.className = 'top-candidate';
-                }
-                
-                // Add candidate data to row
-                row.innerHTML = `
-                    <td>${candidate.rank}</td>
-                    <td>${candidate.name}</td>
-                    <td>${candidate.location}</td>
-                    <td>${candidate.experience}</td>
-                    <td>${candidate.certCount}</td>
-                    <td>${candidate.govWork}</td>
-                    <td>
-                        ${candidate.matchingSkills.map(skill => 
-                            `<span class="skill-badge">${skill}</span>`
-                        ).join('')}
-                    </td>
-                    <td class="skill-count">${candidate.matchingSkillsCount}</td>
-                `;
-                
-                tableBody.appendChild(row);
-            });
-            
-            // Show results container
-            document.getElementById('results-container').style.display = 'block';
-            
-            // Update results count
-            document.getElementById('results-count').textContent = 
-                `Showing ${data.candidates.length} candidates`;
-            
-            // Store current job data for CSV download
-            window.currentJobData = {
-                jobId: jobId,
-                jobRole: data.jobRole,
-                subjectSkills: data.subjectSkills,
-                candidates: data.candidates
-            };
+        } else {
+            skillsContainer.textContent = 'No skills specified';
         }
-
-        // Filter table by rank
-        function filterTableByRank() {
-            const rankInput = document.getElementById('rank-search').value.trim();
-            const tableBody = document.getElementById('table-body');
-            const rows = tableBody.getElementsByTagName('tr');
-            let visibleCount = 0;
-
-            for (let i = 0; i < rows.length; i++) {
-                const rankCell = rows[i].getElementsByTagName('td')[0]; // Rank is the first column
-                if (rankCell) {
-                    const rankValue = rankCell.textContent || rankCell.innerText;
-                    if (rankInput === '' || rankValue === rankInput) {
-                        rows[i].style.display = '';
-                        visibleCount++;
-                    } else {
-                        rows[i].style.display = 'none';
-                    }
+        document.getElementById('subject-skills-container').style.display = 'block';
+        
+        // Show candidate data
+        const tableBody = document.getElementById('table-body');
+        tableBody.innerHTML = '';
+        
+        data.candidates.forEach(candidate => {
+            const row = document.createElement('tr');
+            
+            // Add highlight for top 3 candidates
+            if (candidate.Rank <= 3) {
+                row.className = 'top-candidate';
+            }
+            
+            // Format matching skills
+            let skillsHtml = 'N/A';
+            if (candidate['Matching Skills'] && candidate['Matching Skills'] !== 'N/A') {
+                if (Array.isArray(candidate['Matching Skills'])) {
+                    skillsHtml = candidate['Matching Skills'].map(skill => 
+                        `<span class="skill-badge">${skill}</span>`
+                    ).join('');
+                } else if (typeof candidate['Matching Skills'] === 'string') {
+                    skillsHtml = candidate['Matching Skills'];
                 }
             }
             
-            // Update results count
-            document.getElementById('results-count').textContent = 
-                `Showing ${visibleCount} of ${rows.length} candidates`;
-        }
+            // Add candidate data to row
+            row.innerHTML = `
+                <td>${candidate.Rank || 'N/A'}</td>
+                <td>${candidate.Name || 'N/A'}</td>
+                <td>${candidate['Current Location'] || 'N/A'}</td>
+                <td>${candidate.Experience || 'N/A'}</td>
+                <td>${candidate['Certification Count'] || 'N/A'}</td>
+                <td>${candidate['Government Work'] || 'N/A'}</td>
+                <td>${skillsHtml}</td>
+                <td class="skill-count">${candidate['Matching Skills Count'] || 0}</td>
+            `;
+            
+            tableBody.appendChild(row);
+        });
+        
+        // Show results container
+        document.getElementById('results-container').style.display = 'block';
+        
+        // Update results count
+        document.getElementById('results-count').textContent = 
+            `Showing ${data.candidates.length} candidates`;
+        
+        // Store current job data for CSV download
+        window.currentJobData = data;
+    }
 
-        // Download the entire table as CSV, including job role and subject skills
-        function downloadCSV() {
-            if (!window.currentJobData) {
-                alert('No data available to download. Please process a Job ID first.');
-                return;
+    // Show error message
+    function showError(message) {
+        document.getElementById('job-role-container').style.display = 'none';
+        document.getElementById('subject-skills-container').style.display = 'none';
+        document.getElementById('results-container').style.display = 'none';
+        document.getElementById('no-results').style.display = 'block';
+        
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'error';
+        errorDiv.textContent = message;
+        
+        // Remove any existing error messages
+        const existingErrors = document.querySelectorAll('.error');
+        existingErrors.forEach(error => error.remove());
+        
+        document.querySelector('.form-group').appendChild(errorDiv);
+    }
+
+    // Filter table by rank
+    function filterTableByRank() {
+        const rankInput = document.getElementById('rank-search').value.trim();
+        const tableBody = document.getElementById('table-body');
+        const rows = tableBody.getElementsByTagName('tr');
+        let visibleCount = 0;
+
+        for (let i = 0; i < rows.length; i++) {
+            const rankCell = rows[i].getElementsByTagName('td')[0];
+            if (rankCell) {
+                const rankValue = rankCell.textContent || rankCell.innerText;
+                if (rankInput === '' || rankValue === rankInput) {
+                    rows[i].style.display = '';
+                    visibleCount++;
+                } else {
+                    rows[i].style.display = 'none';
+                }
             }
-            
-            let csvContent = '';
-            const data = window.currentJobData;
-
-            // Add job ID section
-            csvContent += 'Job ID\n';
-            csvContent += data.jobId + '\n\n';
-
-            // Add job role section
-            csvContent += 'Job Role\n';
-            csvContent += data.jobRole + '\n\n';
-
-            // Add subject skills section
-            csvContent += 'Subject Skills\n';
-            csvContent += data.subjectSkills.join(', ') + '\n\n';
-
-            // Add table data section
-            csvContent += 'Candidate Details\n';
-            csvContent += 'Rank,Name,Current Location,Experience,Certification Count,Government Work,Matching Skills,Matching Skills Count\n';
-            
-            data.candidates.forEach(candidate => {
-                const row = [
-                    candidate.rank,
-                    `"${candidate.name}"`,
-                    `"${candidate.location}"`,
-                    `"${candidate.experience}"`,
-                    candidate.certCount,
-                    `"${candidate.govWork}"`,
-                    `"${candidate.matchingSkills.join('; ')}"`,
-                    candidate.matchingSkillsCount
-                ];
-                csvContent += row.join(',') + '\n';
-            });
-
-            // Create a blob and trigger download
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const link = document.createElement('a');
-            const url = URL.createObjectURL(blob);
-            link.setAttribute('href', url);
-            link.setAttribute('download', `candidate_details_${data.jobId}.csv`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
         }
+        
+        // Update results count
+        document.getElementById('results-count').textContent = 
+            `Showing ${visibleCount} of ${rows.length} candidates`;
+    }
 
-        // Initialize with a sample job ID if needed
-        window.onload = function() {
-            // You can automatically load a sample job ID on page load if desired
-            // setJobId('NC-774172');
-        };
-    </script>
+    // Download the entire table as CSV
+    function downloadCSV() {
+        if (!window.currentJobData) {
+            alert('No data available to download. Please process a Job ID first.');
+            return;
+        }
+        
+        let csvContent = '';
+        const data = window.currentJobData;
+
+        // Add job ID section
+        csvContent += 'Job ID\n';
+        csvContent += data.job_id + '\n\n';
+
+        // Add job role section
+        csvContent += 'Job Role\n';
+        csvContent += data.job_role + '\n\n';
+
+        // Add subject skills section
+        csvContent += 'Subject Skills\n';
+        csvContent += data.subject_skills.join(', ') + '\n\n';
+
+        // Add table data section
+        csvContent += 'Candidate Details\n';
+        csvContent += 'Rank,Name,Current Location,Experience,Certification Count,Government Work,Matching Skills,Matching Skills Count\n';
+        
+        data.candidates.forEach(candidate => {
+            const row = [
+                candidate.Rank || '',
+                `"${candidate.Name || ''}"`,
+                `"${candidate['Current Location'] || ''}"`,
+                `"${candidate.Experience || ''}"`,
+                candidate['Certification Count'] || '',
+                `"${candidate['Government Work'] || ''}"`,
+                `"${(candidate['Matching Skills'] && typeof candidate['Matching Skills'] === 'string') ? 
+                    candidate['Matching Skills'] : 
+                    (Array.isArray(candidate['Matching Skills']) ? candidate['Matching Skills'].join('; ') : '')}"`,
+                candidate['Matching Skills Count'] || ''
+            ];
+            csvContent += row.join(',') + '\n';
+        });
+
+        // Create a blob and trigger download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `candidate_details_${data.job_id}.csv`);
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+</script>
 </body>
 </html>
