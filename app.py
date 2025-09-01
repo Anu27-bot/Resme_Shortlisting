@@ -201,63 +201,55 @@ def process():
         columns=[]
     )
 
-# Modified render_processed_results function in app.py
-
 def render_processed_results(df, job_id, recent_jobs):
     """Helper function to render processed results"""
-    # Extract job role from the data
+    # Extract job role from the data - FIXED LOGIC
     job_role = "N/A"
+    
+    # First try to get job role from the Job Role column
     if 'Job Role' in df.columns:
-        # Get the first non-NA, non-empty job role
-        non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
+        # Get the first non-NA, non-empty job role that's not generic
+        non_empty_roles = df[
+            df['Job Role'].notna() & 
+            (df['Job Role'] != 'N/A') & 
+            (df['Job Role'] != '') &
+            (~df['Job Role'].str.contains('Role for', case=False))  # Exclude generic roles
+        ]['Job Role']
+        
         if len(non_empty_roles) > 0:
             job_role = non_empty_roles.iloc[0]
-        else:
-            # Try to extract from subject skills if available
-            if 'Subject Skills' in df.columns:
-                subject_skills = df['Subject Skills'].dropna().unique()
-                if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
-                    skills_str = str(subject_skills[0])
-                    if 'with' in skills_str.lower():  # Case-insensitive check
-                        parts = re.split(r'with', skills_str, flags=re.IGNORECASE, maxsplit=1)
-                        pre_with = parts[0].strip()
-                        # Define possible prefixes for location/modality
-                        prefixes = [
-                            "Onsite/Local ",
-                            "Remote/Local ",
-                            "Hybrid/Local ",
-                            "Onsite/Remote ",
-                            "Local/Onsite ",
-                            "Local/Remote ",
-                            "Local/Hybrid ",
-                            # Add more variations if needed based on your email subjects
-                        ]
-                        # Remove prefix if matched
-                        for prefix in prefixes:
-                            if pre_with.lower().startswith(prefix.lower()):
-                                job_role = pre_with[len(prefix):].strip()
-                                break
-                        else:
-                            job_role = pre_with
-                    else:
-                        job_role = skills_str
+    
+    # If still not found, try to extract from subject skills
+    if job_role == "N/A" and 'Subject Skills' in df.columns:
+        subject_skills = df['Subject Skills'].dropna().unique()
+        if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
+            skills_str = str(subject_skills[0])
+            # Extract job role from subject skills (part before 'with')
+            if 'with' in skills_str.lower():
+                job_role = skills_str.split('with')[0].strip()
+                # Clean up any location prefixes
+                job_role = re.sub(r'^\s*(Onsite/Local|Remote/Local|Hybrid/Local|Onsite|Remote|Hybrid)[/\s]*', '', job_role, flags=re.IGNORECASE).strip()
+            else:
+                job_role = skills_str.strip()
 
     # Extract subject skills from the data
     subject_skills = []
     if 'Subject Skills' in df.columns:
         skills = df['Subject Skills'].dropna().unique()
         if len(skills) > 0 and skills[0] != 'N/A':
-            # Clean up the skills string
+            # Clean up the skills string - extract skills part after 'with'
             skills_str = str(skills[0])
             if 'with' in skills_str.lower():
-                skills_str = re.split(r'with', skills_str, flags=re.IGNORECASE, maxsplit=1)[1].strip()
-            subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
+                skills_part = skills_str.split('with')[1].strip()
+                subject_skills = [s.strip() for s in skills_part.split(',') if s.strip()]
+            else:
+                subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
 
     # Define the correct column names
     available_columns = [
         "Rank", "Name", "Current Location", 
         "Experience", "Certification Count", "Government Work", 
-        "Matching Skills", "Matching Skills Count", "Job Role"  # Added Job Role to display
+        "Matching Skills", "Matching Skills Count"
     ]
     
     # Filter to only include columns that actually exist
@@ -268,8 +260,6 @@ def render_processed_results(df, job_id, recent_jobs):
         df["Matching Skills"] = "N/A"
     if "Matching Skills Count" not in df.columns:
         df["Matching Skills Count"] = 0
-    if "Job Role" not in df.columns:
-        df["Job Role"] = job_role  # Add the extracted job role
 
     table_data = df[columns_order].to_dict(orient='records')
 
@@ -361,26 +351,41 @@ def api_process(job_id):
 
 def process_job_data(df, job_id):
     """Process job data and return JSON response"""
-    # Extract job information
+    # Extract job information - FIXED LOGIC
     job_role = "N/A"
     if 'Job Role' in df.columns:
-        non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
+        # Get the first non-NA, non-empty job role that's not generic
+        non_empty_roles = df[
+            df['Job Role'].notna() & 
+            (df['Job Role'] != 'N/A') & 
+            (df['Job Role'] != '') &
+            (~df['Job Role'].str.contains('Role for', case=False))
+        ]['Job Role']
+        
         if len(non_empty_roles) > 0:
             job_role = non_empty_roles.iloc[0]
-        else:
-            if 'Subject Skills' in df.columns:
-                subject_skills = df['Subject Skills'].dropna().unique()
-                if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
-                    job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
+
+    # If still not found, try to extract from subject skills
+    if job_role == "N/A" and 'Subject Skills' in df.columns:
+        subject_skills_list = df['Subject Skills'].dropna().unique()
+        if len(subject_skills_list) > 0 and subject_skills_list[0] != 'N/A':
+            skills_str = str(subject_skills_list[0])
+            if 'with' in skills_str.lower():
+                job_role = skills_str.split('with')[0].strip()
+                job_role = re.sub(r'^\s*(Onsite/Local|Remote/Local|Hybrid/Local|Onsite|Remote|Hybrid)[/\s]*', '', job_role, flags=re.IGNORECASE).strip()
+            else:
+                job_role = skills_str.strip()
 
     subject_skills = []
     if 'Subject Skills' in df.columns:
         skills = df['Subject Skills'].dropna().unique()
         if len(skills) > 0 and skills[0] != 'N/A':
             skills_str = str(skills[0])
-            if 'with' in skills_str:
-                skills_str = skills_str.split('with')[1].strip()
-            subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
+            if 'with' in skills_str.lower():
+                skills_part = skills_str.split('with')[1].strip()
+                subject_skills = [s.strip() for s in skills_part.split(',') if s.strip()]
+            else:
+                subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
 
     # Prepare response data
     response_data = {
