@@ -66,7 +66,7 @@ def index():
 
 @app.route('/process', methods=['GET', 'POST'])
 def process():
-    recent_jobs = get_recent_job_ids()  # FIXED: Changed from get_recent_jobs() to get_recent_job_ids()
+    recent_jobs = get_recent_job_ids()
     
     if request.method == 'POST':
         job_id = request.form.get('job_id').strip()
@@ -232,7 +232,7 @@ def render_processed_results(df, job_id, recent_jobs):
     available_columns = [
         "Rank", "Name", "Current Location", 
         "Experience", "Certification Count", "Government Work", 
-        "Matching Skills", "Matching Skills Count", "Job Role"  # Added Job Role to display
+        "Matching Skills", "Matching Skills Count", "Job Role"
     ]
     
     # Filter to only include columns that actually exist
@@ -244,7 +244,7 @@ def render_processed_results(df, job_id, recent_jobs):
     if "Matching Skills Count" not in df.columns:
         df["Matching Skills Count"] = 0
     if "Job Role" not in df.columns:
-        df["Job Role"] = job_role  # Add the extracted job role
+        df["Job Role"] = job_role
 
     table_data = df[columns_order].to_dict(orient='records')
 
@@ -264,6 +264,18 @@ def render_processed_results(df, job_id, recent_jobs):
 def api_process(job_id):
     """API endpoint for processing job IDs"""
     try:
+        # Check if we have cached results for this job ID first
+        cached_csv = os.path.join(project_root, "Resumes", f"resume_analysis_{job_id}.csv")
+        if os.path.exists(cached_csv):
+            try:
+                df = pd.read_csv(cached_csv)
+                return process_job_data(df, job_id)
+            except Exception as e:
+                return jsonify({
+                    'success': False,
+                    'error': f'Error reading cached results: {str(e)}'
+                }), 500
+
         # Create a temporary directory for this processing session
         with tempfile.TemporaryDirectory() as temp_dir:
             resume_folder = os.path.join(temp_dir, "Resumes")
@@ -297,37 +309,12 @@ def api_process(job_id):
                         'error': f'Results for Job ID "{job_id}" are empty'
                     }), 404
 
-                # Extract job information - FIXED LOGIC
-                job_role = "N/A"
-                if 'Job Role' in df.columns:
-                    non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
-                    if len(non_empty_roles) > 0:
-                        job_role = non_empty_roles.iloc[0]
-                    else:
-                        if 'Subject Skills' in df.columns:
-                            subject_skills = df['Subject Skills'].dropna().unique()
-                            if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
-                                job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
-
-                subject_skills = []
-                if 'Subject Skills' in df.columns:
-                    skills = df['Subject Skills'].dropna().unique()
-                    if len(skills) > 0 and skills[0] != 'N/A':
-                        skills_str = str(skills[0])
-                        if 'with' in skills_str:
-                            skills_str = skills_str.split('with')[1].strip()
-                        subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
-
-                # Prepare response data
-                response_data = {
-                    'success': True,
-                    'job_id': job_id,
-                    'job_role': job_role,
-                    'subject_skills': subject_skills,
-                    'candidates': df.to_dict(orient='records')
-                }
+                # Save results to cache
+                os.makedirs(os.path.join(project_root, "Resumes"), exist_ok=True)
+                cache_path = os.path.join(project_root, "Resumes", f"resume_analysis_{job_id}.csv")
+                df.to_csv(cache_path, index=False)
                 
-                return jsonify(response_data)
+                return process_job_data(df, job_id)
 
             except Exception as e:
                 return jsonify({
@@ -346,6 +333,40 @@ def api_process(job_id):
             'error': f'Unexpected error: {str(e)}',
             'traceback': traceback.format_exc()
         }), 500
+
+def process_job_data(df, job_id):
+    """Process job data and return JSON response"""
+    # Extract job information
+    job_role = "N/A"
+    if 'Job Role' in df.columns:
+        non_empty_roles = df[df['Job Role'].notna() & (df['Job Role'] != 'N/A') & (df['Job Role'] != '')]['Job Role']
+        if len(non_empty_roles) > 0:
+            job_role = non_empty_roles.iloc[0]
+        else:
+            if 'Subject Skills' in df.columns:
+                subject_skills = df['Subject Skills'].dropna().unique()
+                if len(subject_skills) > 0 and subject_skills[0] != 'N/A':
+                    job_role = subject_skills[0].split('with')[0].strip() if 'with' in subject_skills[0] else subject_skills[0]
+
+    subject_skills = []
+    if 'Subject Skills' in df.columns:
+        skills = df['Subject Skills'].dropna().unique()
+        if len(skills) > 0 and skills[0] != 'N/A':
+            skills_str = str(skills[0])
+            if 'with' in skills_str:
+                skills_str = skills_str.split('with')[1].strip()
+            subject_skills = [s.strip() for s in skills_str.split(',') if s.strip()]
+
+    # Prepare response data
+    response_data = {
+        'success': True,
+        'job_id': job_id,
+        'job_role': job_role,
+        'subject_skills': subject_skills,
+        'candidates': df.to_dict(orient='records')
+    }
+    
+    return jsonify(response_data)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)
