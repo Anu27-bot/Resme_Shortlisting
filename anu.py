@@ -1,5 +1,3 @@
-from dotenv import load_dotenv
-load_dotenv()
 import os
 import subprocess
 import pandas as pd
@@ -39,11 +37,10 @@ LIBREOFFICE_PATH = r"C:\\Program Files\\LibreOffice\\program\\soffice.exe"
 OUTPUT_CSV = os.path.join(RESUME_FOLDER, "resume_analysis.csv")
 
 # Groq Configuration
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY environment variable not set. Please set it in your .env file.")
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
-GROQ_MODEL = 'llama-3.1-8b-instant'
+GROQ_MODEL = 'llama3-8b-8192'
+
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 
 # Supabase Configuration
@@ -681,15 +678,11 @@ def extract_candidate_details_from_resume_text(resume_text):
         }},
         "skills": ["list of technical skills mentioned"]
     }}
-    Special Instructions for SAP Skills:
+     Special Instructions for SAP Skills:
     1. For each JD skill, count how many times it appears in the resume
     2. Include partial matches (e.g., 'Fiori' matches 'SAP Fiori')
     3. Group similar skills together
-    # In your prompt to the LLM:
-    "Special Instructions for Government Work Detection:\n"
-    "1. ONLY identify government entities that start with 'Department of' or 'State of'\n"
-   "2. Ignore all other government-related terms like Federal, City of, County of, etc.\n"
-   "3. Mark worked_with_govt as true only if 'Department of' or 'State of' entities are found\n"
+    
     Rules:
     1. Calculate total_experience by summing all work experience durations
     2. Count all certifications mentioned in education/certifications sections
@@ -825,7 +818,8 @@ def extract_email_data(service, message_id):
 
 def apply_resume_scoring(df):
     """
-    Apply ranking with priority: Government > Skills > Experience
+    Apply ranking based on government experience and total experience.
+    Now includes proper initialization of all required columns.
     """
     logging.info(f"Applying resume scoring. DataFrame columns: {list(df.columns)}")
     
@@ -836,8 +830,6 @@ def apply_resume_scoring(df):
         df['Experience Years'] = 0.0
     if 'Government Score' not in df.columns:
         df['Government Score'] = 0
-    if 'Matching Skills Count' not in df.columns:
-        df['Matching Skills Count'] = 0
     if 'Rank' not in df.columns:
         df['Rank'] = 0
     
@@ -854,27 +846,24 @@ def apply_resume_scoring(df):
             return 0
         if "Yes:" in government_work:
             entities = government_work.split("Yes:")[1].split(",")
-            return len(entities) * 1000  # Heavy weighting for government
-        return 1000  # Heavy weighting for government work without specific entities
+            return len(entities)
+        return 1
 
     try:
-        # Parse values
         df["Experience Years"] = df["Experience"].apply(parse_experience)
         df["Government Score"] = df["Government Work"].apply(calculate_government_score)
         
-        # Get max values for normalization (avoid division by zero)
+        # Normalize scores
         max_exp = df["Experience Years"].max() or 1
-        max_skills = df["Matching Skills Count"].max() or 1
+        max_gov = df["Government Score"].max() or 1
         
-        # NEW PRIORITY-BASED SCORING: Government > Skills > Experience
-        # Government gets massive weight (1000+), Skills gets moderate weight (100+), Experience gets base weight
+        # Calculate composite score (50% experience, 50% government)
         df["Composite Score"] = (
-            df["Government Score"] +  # Primary: Government (heaviest weight)
-            (df["Matching Skills Count"] / max_skills * 100) +  # Secondary: Skills
-            (df["Experience Years"] / max_exp)   # Tertiary: Experience
+            0.5 * (df["Experience Years"] / max_exp) +
+            0.5 * (df["Government Score"] / max_gov)
         )
         
-        # Assign ranks based on composite score (higher score = better rank)
+        # Assign ranks
         df["Rank"] = df["Composite Score"].rank(ascending=False, method="min").astype(int)
         
         # Drop temporary columns
@@ -883,7 +872,7 @@ def apply_resume_scoring(df):
         # Sort by rank
         df = df.sort_values(by="Rank", ascending=True).reset_index(drop=True)
         
-        return df, "Scenario: Government (Primary) > Skills (Secondary) > Experience (Tertiary)"
+        return df, "Scenario: Prioritize Government (50%), Experience (50%)"
     
     except Exception as e:
         logging.error(f"Error in resume scoring: {e}")
@@ -1034,30 +1023,12 @@ def extract_job_description_details(service, message_id):
         subject = next((h['value'] for h in headers if h['name'] == 'Subject'), "")
         email_body = extract_email_body(payload)
         
-        subject_lower = subject.lower()
-        job_role = "N/A"
+        # Extract job role from subject (before "with" if present)
+        job_role = subject.split("With")[0].split("with")[0].strip()
         
-        # Handle different subject formats
-        if "role for" in subject_lower and " with " in subject_lower:
-            # Format: "Role for SC-7983 with Oracle APEX Developer, ..."
-            parts = subject.split(" with ", 1)
-            if len(parts) > 1:
-                skills_part = parts[1].strip()
-                job_role = skills_part.split(",")[0].strip()
-        
-        elif " with " in subject_lower:
-            # Format: "Oracle PL/SQL/Apex Developer (12+) with JavaScript, ..."
-            parts = subject.split(" with ", 1)
-            job_role = parts[0].strip()
-        
-        else:
-            # Fallback: Use original logic
-            job_role = subject.split("With")[0].split("with")[0].strip()
-        
-        # Clean up job role
+        # Clean up job role (remove location info)
         job_role = re.sub(r'\b(Hybrid|Local|Remote|Onsite)\b[\s/]*', '', job_role, flags=re.IGNORECASE).strip()
-        job_role = re.sub(r'\(\d+\+\)', '', job_role).strip()
-        job_role = re.sub(r'\(.*?\)', '', job_role).strip()  # Remove any parentheses
+        job_role = re.sub(r'\(\d+\+\)', '', job_role).strip()  # Remove experience like (12+)
         
         # Extract skills from subject
         subject_skills = extract_skills_from_subject(subject)
@@ -1071,11 +1042,6 @@ def extract_job_description_details(service, message_id):
             skills_section = extract_skills_with_experience(email_body)
             if skills_section:
                 jd_skills = skills_section
-        
-        # DEBUG: Print what's being extracted
-        print(f"DEBUG - Subject: {subject}")
-        print(f"DEBUG - Extracted Job Role: {job_role}")
-        print(f"DEBUG - Subject Skills: {subject_skills}")
         
         return {
             "Job Role": job_role,
@@ -1505,3 +1471,4 @@ def main(job_id):
 if __name__ == "__main__":
     job_id = input("Enter the job ID to search for: ").strip()
     main(job_id)
+    
