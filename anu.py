@@ -37,11 +37,11 @@ LIBREOFFICE_PATH = r"C:\\Program Files\\LibreOffice\\program\\soffice.exe"
 OUTPUT_CSV = os.path.join(RESUME_FOLDER, "resume_analysis.csv")
 
 # Groq Configuration
-
 # Groq Configuration
 GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 GROQ_MODEL = 'llama-3.1-8b-instant'
+
 
 
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
