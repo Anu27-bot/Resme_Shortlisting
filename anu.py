@@ -37,9 +37,12 @@ LIBREOFFICE_PATH = r"C:\\Program Files\\LibreOffice\\program\\soffice.exe"
 OUTPUT_CSV = os.path.join(RESUME_FOLDER, "resume_analysis.csv")
 
 # Groq Configuration
-GROQ_API_KEY = "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"
+
+GROQ_API_KEY = os.getenv("GROQ_API_KEY")
+if not GROQ_API_KEY:
+    raise ValueError("GROQ_API_KEY environment variable not set. Please set it in your .env file.")
 client = Groq(api_key=GROQ_API_KEY)
-GROQ_MODEL = 'llama3-8b-8192'
+GROQ_MODEL = 'llama-3.1-8b-instant'
 
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 
