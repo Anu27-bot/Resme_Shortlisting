@@ -1034,12 +1034,30 @@ def extract_job_description_details(service, message_id):
         subject = next((h['value'] for h in headers if h['name'] == 'Subject'), "")
         email_body = extract_email_body(payload)
         
-        # Extract job role from subject (before "with" if present)
-        job_role = subject.split("With")[0].split("with")[0].strip()
+        subject_lower = subject.lower()
+        job_role = "N/A"
         
-        # Clean up job role (remove location info)
+        # Handle different subject formats
+        if "role for" in subject_lower and " with " in subject_lower:
+            # Format: "Role for SC-7983 with Oracle APEX Developer, ..."
+            parts = subject.split(" with ", 1)
+            if len(parts) > 1:
+                skills_part = parts[1].strip()
+                job_role = skills_part.split(",")[0].strip()
+        
+        elif " with " in subject_lower:
+            # Format: "Oracle PL/SQL/Apex Developer (12+) with JavaScript, ..."
+            parts = subject.split(" with ", 1)
+            job_role = parts[0].strip()
+        
+        else:
+            # Fallback: Use original logic
+            job_role = subject.split("With")[0].split("with")[0].strip()
+        
+        # Clean up job role
         job_role = re.sub(r'\b(Hybrid|Local|Remote|Onsite)\b[\s/]*', '', job_role, flags=re.IGNORECASE).strip()
-        job_role = re.sub(r'\(\d+\+\)', '', job_role).strip()  # Remove experience like (12+)
+        job_role = re.sub(r'\(\d+\+\)', '', job_role).strip()
+        job_role = re.sub(r'\(.*?\)', '', job_role).strip()  # Remove any parentheses
         
         # Extract skills from subject
         subject_skills = extract_skills_from_subject(subject)
@@ -1053,6 +1071,11 @@ def extract_job_description_details(service, message_id):
             skills_section = extract_skills_with_experience(email_body)
             if skills_section:
                 jd_skills = skills_section
+        
+        # DEBUG: Print what's being extracted
+        print(f"DEBUG - Subject: {subject}")
+        print(f"DEBUG - Extracted Job Role: {job_role}")
+        print(f"DEBUG - Subject Skills: {subject_skills}")
         
         return {
             "Job Role": job_role,
