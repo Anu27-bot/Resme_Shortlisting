@@ -5,6 +5,7 @@ import logging
 import json
 import traceback
 import hashlib
+import re
 from datetime import datetime
 from werkzeug.utils import secure_filename
 import tempfile
@@ -55,6 +56,20 @@ def add_to_recent_jobs(job_id):
     session['recent_jobs'] = recent_jobs
     return recent_jobs
 
+def format_candidate_name(name):
+    """Format candidate name to ensure it's properly displayed"""
+    if not name or pd.isna(name) or name == "N/A":
+        return "Unknown Candidate"
+    
+    # Clean up the name - remove any extra spaces or special characters
+    name = re.sub(r'[^a-zA-Z\s]', '', str(name))
+    name = re.sub(r'\s+', ' ', name).strip()
+    
+    # Capitalize properly
+    name = ' '.join([part.capitalize() for part in name.split()])
+    
+    return name
+
 @app.route('/')
 def index():
     """Main page"""
@@ -83,6 +98,10 @@ def process_job():
             return jsonify({'error': 'No results generated'}), 500
             
         df = pd.read_csv(OUTPUT_CSV)
+        
+        # Format candidate names
+        if 'Name' in df.columns:
+            df['Name'] = df['Name'].apply(format_candidate_name)
         
         # Extract job details
         job_role = "N/A"
@@ -164,8 +183,17 @@ def download_results(job_id):
         if not os.path.exists(csv_path):
             return jsonify({'error': 'Results not found'}), 404
             
+        # Read and format the CSV before sending
+        df = pd.read_csv(csv_path)
+        if 'Name' in df.columns:
+            df['Name'] = df['Name'].apply(format_candidate_name)
+        
+        # Save the formatted version temporarily
+        formatted_path = os.path.join(RESUME_FOLDER, f"formatted_{job_id}.csv")
+        df.to_csv(formatted_path, index=False)
+            
         return send_file(
-            csv_path,
+            formatted_path,
             as_attachment=True,
             download_name=f"resume_analysis_{job_id}.csv",
             mimetype='text/csv'
