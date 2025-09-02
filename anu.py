@@ -38,11 +38,11 @@ OUTPUT_CSV = os.path.join(RESUME_FOLDER, "resume_analysis.csv")
 
 # Groq Configuration
 
-GROQ_API_KEY = os.getenv("GROQ_API_KEY")
-if not GROQ_API_KEY:
-    raise ValueError("GROQ_API_KEY environment variable not set. Please set it in your .env file.")
+# Groq Configuration
+GROQ_API_KEY = "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"
 client = Groq(api_key=GROQ_API_KEY)
 GROQ_MODEL = 'llama-3.1-8b-instant'
+
 
 CURRENT_DATE = datetime.now().strftime("%Y-%m-%d")
 
